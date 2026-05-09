@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Menú Digital</title>
+    <title>MenÃº Digital</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
@@ -105,7 +105,7 @@
 <body>
 
     <div id="tv-screen">
-        <!-- Ajustado pt-50 para que esté cerca del tope pero con aire. Cambia a pt-0 si quieres el tope absoluto -->
+        <!-- Ajustado pt-50 para que estÃ© cerca del tope pero con aire. Cambia a pt-0 si quieres el tope absoluto -->
         <header class="pt-42 pb-8 text-center shrink-0">
             <div class="inline-block bg-black/40 border-y-2 border-brand-yellow/50 px-12 py-2 backdrop-blur-sm">
                 <h1 class="text-4xl font-black text-brand-yellow uppercase tracking-[0.4em] italic text-shadow-strong">
@@ -117,7 +117,7 @@
         <main id="scroll-area">
             <div id="status-message" class="h-64 flex flex-col items-center justify-center text-center">
                 <div class="loader mb-4"></div>
-                <p id="status-text" class="text-brand-yellow font-black text-2xl animate-pulse uppercase text-shadow-strong">Sincronizando menú...</p>
+                <p id="status-text" class="text-brand-yellow font-black text-2xl animate-pulse uppercase text-shadow-strong">Sincronizando menÃº...</p>
             </div>
 
             <div id="menu-container" class="hidden flex flex-col pb-32"></div>
@@ -158,12 +158,12 @@
                         if (results.data && results.data.length > 0) {
                             renderMenu(results.data);
                         } else {
-                            showError("La hoja está vacía");
+                            showError("La hoja estÃ¡ vacÃ­a");
                         }
                     }
                 });
             } catch (err) {
-                showError("Error de Conexión con Google");
+                showError("Error de ConexiÃ³n con Google");
             }
         }
 
