@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Menú Digital - Pollos Norma</title>
+    <title>Menú Digital - Pollos Norma (Paginado)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     
@@ -20,10 +20,12 @@
             --tamano-titulo-menu: 2.25rem;
             --tamano-categoria: 1.8rem;
             --tamano-nombre-plato: 1.25rem;
-            --tamano-precio: 1.5rem;
+            --tamano-precio: 1.5rem; 
 
             --fuente-titulos: 'Montserrat', sans-serif;
             --fuente-cuerpo: 'Arial', sans-serif; 
+            
+            --tiempo-pagina: 15000ms; 
         }
 
         body {
@@ -51,15 +53,35 @@
             position: relative;
         }
 
-        #scroll-area {
+        #pages-container {
             flex-grow: 1;
-            overflow-y: auto; 
+            position: relative;
             padding: 0 24px;
-            scrollbar-width: none; 
-            scroll-behavior: smooth;
         }
 
-        #scroll-area::-webkit-scrollbar { display: none; }
+        .page {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 0 24px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateX(50px);
+        }
+
+        .page.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(0);
+        }
+
+        .page.exit {
+            opacity: 0;
+            transform: translateX(-100px);
+        }
 
         .titulo-principal {
             font-family: var(--fuente-titulos);
@@ -69,7 +91,7 @@
 
         .category-header {
             background: linear-gradient(90deg, var(--color-acento) 0%, rgba(220, 38, 38, 0) 100%);
-            padding: 8px 15px;
+            padding: 6px 15px;
             border-left: 8px solid var(--color-primario);
             font-family: var(--fuente-cuerpo); 
             text-transform: uppercase;
@@ -77,7 +99,7 @@
             font-size: var(--tamano-categoria);
             color: white;
             margin-top: 10px; 
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
         }
 
@@ -86,41 +108,52 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(8px);
             border-radius: 12px;
-            padding: 14px;
-            min-height: 135px; 
+            padding: 12px;
+            height: 125px; 
             display: flex;
             flex-direction: column;
             justify-content: space-between;
         }
 
         .item-name {
-            font-size: var(--tamano-nombre-plato);
             color: var(--color-primario);
             font-family: var(--fuente-cuerpo); 
             font-weight: bold;
+            white-space: nowrap; 
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.2;
         }
 
-        .item-price-ref {
-            font-size: var(--tamano-precio);
-            color: var(--texto-precios);
+        /* Sección de precios con fuente Arial forzada */
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            padding-top: 8px;
+            font-family: Arial, sans-serif; /* Forzamos Arial para precios y etiquetas */
         }
-        
-        .label-style {
-            color: var(--color-primario); 
+
+        .price-group {
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+        }
+
+        .price-label {
+            color: var(--color-primario);
             font-weight: bold;
+            font-size: var(--tamano-precio);
         }
 
-        .loader {
-            border: 5px solid rgba(255,255,255,0.1);
-            border-top: 5px solid var(--color-primario);
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            animation: spin 1s linear infinite;
+        .price-value {
+            color: var(--texto-precios);
+            font-weight: bold;
+            font-size: var(--tamano-precio);
+            letter-spacing: -1px;
         }
 
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
         .text-shadow-strong {
             text-shadow: 2px 2px 8px rgba(0,0,0,0.9);
         }
@@ -131,12 +164,26 @@
             -webkit-box-orient: vertical;  
             overflow: hidden;
         }
+
+        #page-indicator {
+            position: absolute;
+            bottom: 20px;
+            right: 30px;
+            background: rgba(0,0,0,0.6);
+            color: var(--color-primario);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            border: 1px solid var(--color-primario);
+            z-index: 100;
+        }
     </style>
 </head>
 <body>
 
     <div id="tv-screen">
-        <header class="pt-0 pb-4 text-center shrink-0">
+        <header class="pt-4 pb-2 text-center shrink-0">
             <div class="inline-block bg-black/40 border-y-2 border-brand-yellow/50 px-12 py-2 backdrop-blur-sm">
                 <h1 class="titulo-principal font-black uppercase tracking-[0.4em] italic text-shadow-strong">
                     MENU
@@ -144,35 +191,42 @@
             </div>
         </header>
 
-        <main id="scroll-area">
-            <div id="status-message" class="h-64 flex flex-col items-center justify-center text-center">
-                <div class="loader mb-4" id="main-loader"></div>
-                <p id="status-text" class="text-brand-yellow font-black text-2xl animate-pulse uppercase text-shadow-strong">Sincronizando menú...</p>
-            </div>
+        <div id="status-message" class="flex-grow flex flex-col items-center justify-center text-center">
+            <p id="status-text" class="text-brand-yellow font-black text-2xl animate-pulse uppercase text-shadow-strong text-[#F08F00]">Sincronizando menú...</p>
+        </div>
 
-            <div id="menu-container" class="hidden flex flex-col pb-[600px] mt-2"></div>
-        </main>
+        <main id="pages-container"></main>
+        
+        <div id="page-indicator" class="hidden"></div>
     </div>
 
     <script>
         const BASE_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ8En6_aEMcaVcFTeOLP3FAdpviYg1aF-6IryDOt--P-r_DcimWNmVXnjZrdVjN8TdcdK-4oAwprFU1/pub?output=csv";
+        const ITEMS_PER_PAGE = 14;
+        const PAGE_DURATION = 15000; 
 
-        // Variables globales para controlar la animación de scroll
-        let scrollRequestId = null;
-        let isScrollingActive = false;
+        let currentPageIndex = 0;
+        let totalPages = 0;
+        let pageTimer = null;
 
         function formatBs(value) {
             if (value === null || value === undefined || value === "") return "0,00";
             const num = parseFloat(value.toString().replace(',', '.'));
-            if (isNaN(num)) return "0,00";
-            return num.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            return isNaN(num) ? "0,00" : num.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
 
         function formatRef(value) {
             if (value === null || value === undefined || value === "") return "0.00";
             const num = parseFloat(value.toString().replace(',', '.'));
-            if (isNaN(num)) return "0.00";
-            return num.toFixed(2);
+            return isNaN(num) ? "0.00" : num.toFixed(2);
+        }
+
+        function getDynamicFontSize(text) {
+            const baseSize = 1.25; 
+            const maxLength = 20; 
+            if (text.length <= maxLength) return `${baseSize}rem`;
+            const newSize = Math.max(0.8, baseSize - ((text.length - maxLength) * 0.03));
+            return `${newSize}rem`;
         }
 
         function getColumnValue(row, keyword) {
@@ -184,143 +238,128 @@
         async function fetchMenu() {
             try {
                 const response = await fetch(`${BASE_URL}&t=${Date.now()}`);
-                if (!response.ok) throw new Error("Error de red");
                 const csvText = await response.text();
                 Papa.parse(csvText, {
                     header: true,
                     skipEmptyLines: true,
                     complete: (results) => {
                         if (results.data && results.data.length > 0) {
-                            renderItems(results.data);
-                        } else {
-                            handleError("Sin datos en el Excel.");
+                            paginateMenu(results.data);
                         }
                     }
                 });
             } catch (err) {
-                handleError("Error al conectar con Google Sheets.");
+                console.error("Error al cargar datos");
             }
         }
 
-        function handleError(msg) {
-            const statusText = document.getElementById('status-text');
-            const loader = document.getElementById('main-loader');
-            if (statusText) {
-                statusText.innerText = msg;
-                statusText.classList.remove('animate-pulse');
-                statusText.classList.add('text-red-500');
-            }
-            if (loader) loader.style.display = 'none';
-        }
-
-        function renderItems(data) {
-            const container = document.getElementById('menu-container');
+        function paginateMenu(data) {
+            const container = document.getElementById('pages-container');
             const statusMsg = document.getElementById('status-message');
-            if (!container) return;
-
-            // Detener cualquier animación previa para evitar duplicados en memoria
-            if (scrollRequestId) {
-                cancelAnimationFrame(scrollRequestId);
-                isScrollingActive = false;
-            }
-
+            const indicator = document.getElementById('page-indicator');
+            
+            clearInterval(pageTimer);
             container.innerHTML = '';
-            const categories = {};
-
+            
+            const categorizedItems = [];
             data.forEach(row => {
-                let cat = getColumnValue(row, "CATEGORIA") || "OTROS";
-                if (!categories[cat]) categories[cat] = [];
-                categories[cat].push(row);
+                const cat = getColumnValue(row, "CATEGORIA") || "OTROS";
+                categorizedItems.push({ ...row, categoryTitle: cat });
             });
 
-            for (const [name, items] of Object.entries(categories)) {
-                const header = document.createElement('div');
-                header.className = "category-header";
-                header.innerText = name;
-                container.appendChild(header);
+            totalPages = Math.ceil(categorizedItems.length / ITEMS_PER_PAGE);
+            
+            for (let i = 0; i < totalPages; i++) {
+                const pageDiv = document.createElement('div');
+                pageDiv.className = `page ${i === 0 ? 'active' : ''}`;
+                pageDiv.id = `page-${i}`;
 
-                const grid = document.createElement('div');
-                grid.className = "grid grid-cols-2 gap-4";
+                const pageItems = categorizedItems.slice(i * ITEMS_PER_PAGE, (i + 1) * ITEMS_PER_PAGE);
+                let lastCategoryInPage = "";
 
-                items.forEach(item => {
+                let pageHtml = "";
+
+                pageItems.forEach((item, idx) => {
+                    if (item.categoryTitle !== lastCategoryInPage) {
+                        const isContinuation = (idx === 0 && i > 0 && item.categoryTitle === categorizedItems[(i * ITEMS_PER_PAGE) - 1].categoryTitle);
+                        pageHtml += `<div class="category-header">${item.categoryTitle} ${isContinuation ? '<small class="text-xs opacity-60">(Cont.)</small>' : ''}</div>`;
+                        pageHtml += `<div class="grid grid-cols-2 gap-4 mb-4">`;
+                        lastCategoryInPage = item.categoryTitle;
+                    }
+
                     const itemName = getColumnValue(item, "NOMBRE") || "Sin Nombre";
                     const itemDesc = getColumnValue(item, "DESCRIPCION") || "";
                     const itemRef = getColumnValue(item, "Ref") || "0";
                     const itemBs = getColumnValue(item, "Bs") || "0";
 
-                    const card = document.createElement('div');
-                    card.className = "menu-item";
-                    card.innerHTML = `
-                        <div>
-                            <h3 class="item-name uppercase leading-tight line-clamp-1">${itemName}</h3>
-                            <p class="text-white text-[12px] leading-tight line-clamp-3 italic font-medium mt-1">${itemDesc}</p>
-                        </div>
-                        <div class="flex justify-between items-end border-t border-white/20 pt-2 mt-1">
-                            <div class="flex items-center gap-1">
-                                <span class="label-style text-sm">Ref:</span>
-                                <span class="item-price-ref font-black tracking-tighter">${formatRef(itemRef)}</span>
+                    const fontSize = getDynamicFontSize(itemName);
+
+                    pageHtml += `
+                        <div class="menu-item">
+                            <div>
+                                <h3 class="item-name uppercase" style="font-size: ${fontSize}">${itemName}</h3>
+                                <p class="text-white text-[11px] leading-tight line-clamp-3 italic font-medium mt-1">${itemDesc}</p>
                             </div>
-                            <div class="text-right flex items-center gap-1">
-                                <span class="label-style text-xs">Bs.</span>
-                                <span class="text-xl font-bold text-white tracking-tighter">${formatBs(itemBs)}</span>
+                            <div class="price-row">
+                                <div class="price-group">
+                                    <span class="price-label">REF:</span>
+                                    <span class="price-value">${formatRef(itemRef)}</span>
+                                </div>
+                                <div class="price-group">
+                                    <span class="price-label">BS:</span>
+                                    <span class="price-value">${formatBs(itemBs)}</span>
+                                </div>
                             </div>
                         </div>
                     `;
-                    grid.appendChild(card);
+
+                    if (pageItems[idx + 1] && pageItems[idx + 1].categoryTitle !== lastCategoryInPage) {
+                        pageHtml += `</div>`;
+                    }
                 });
-                container.appendChild(grid);
+
+                pageHtml += `</div>`;
+                pageDiv.innerHTML = pageHtml;
+                container.appendChild(pageDiv);
             }
 
-            if (statusMsg) statusMsg.style.display = 'none';
-            container.classList.remove('hidden');
-            
-            // Iniciar scroll con un pequeño retraso para asegurar que el DOM esté listo
-            setTimeout(initScroll, 1000);
+            statusMsg.style.display = 'none';
+            indicator.classList.remove('hidden');
+            updateIndicator();
+            startRotation();
         }
 
-        function initScroll() {
-            const area = document.getElementById('scroll-area');
-            if (!area || isScrollingActive) return;
-            
-            isScrollingActive = true;
-            let speed = 0.8;
-            let dir = 1;
-            let pause = false;
-            
-            // Reiniciamos posición al inicio cada vez que se carga
-            area.scrollTop = 0;
+        function updateIndicator() {
+            const indicator = document.getElementById('page-indicator');
+            indicator.innerText = `${currentPageIndex + 1} / ${totalPages}`;
+        }
 
-            function step() {
-                if (!pause) {
-                    area.scrollTop += (speed * dir);
-                    
-                    // Calculamos el final real (ajustamos según el padding inferior)
-                    const endOfContent = area.scrollHeight - area.clientHeight - 300; 
-                    
-                    if (area.scrollTop >= endOfContent && dir === 1) {
-                        pause = true;
-                        setTimeout(() => { 
-                            dir = -1; 
-                            speed = 10; 
-                            pause = false; 
-                        }, 6000);
-                    } else if (area.scrollTop <= 0 && dir === -1) {
-                        pause = true;
-                        setTimeout(() => { 
-                            dir = 1; 
-                            speed = 0.8; 
-                            pause = false; 
-                        }, 4000);
-                    }
-                }
-                scrollRequestId = requestAnimationFrame(step);
-            }
-            step();
+        function startRotation() {
+            if (totalPages <= 1) return;
+            
+            pageTimer = setInterval(() => {
+                const prevPage = document.getElementById(`page-${currentPageIndex}`);
+                prevPage.classList.remove('active');
+                prevPage.classList.add('exit');
+                
+                currentPageIndex = (currentPageIndex + 1) % totalPages;
+                const nextPage = document.getElementById(`page-${currentPageIndex}`);
+                
+                nextPage.classList.remove('exit');
+                
+                setTimeout(() => {
+                    nextPage.classList.add('active');
+                    setTimeout(() => {
+                        prevPage.classList.remove('exit');
+                    }, 800);
+                    updateIndicator();
+                }, 50);
+
+            }, PAGE_DURATION);
         }
 
         window.onload = fetchMenu;
-        // Intervalo de sincronización de datos
-        setInterval(fetchMenu, 60000);
+        setInterval(fetchMenu, 300000); 
     </script>
 </body>
 </html>
