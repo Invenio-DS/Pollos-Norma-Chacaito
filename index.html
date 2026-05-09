@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Menú Digital - Pollos Norma (Paginado)</title>
+    <title>Menú Digital - Pollos Norma (720x1280)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     
@@ -13,14 +13,14 @@
         :root {
             --color-primario: #F08F00;    
             --color-acento: #dc2626;      
-            --fondo-tarjeta: rgba(0, 0, 0, 0.85);
+            --fondo-tarjeta: rgba(0, 0, 0, 0.9);
             --texto-precios: #ffffff;     
             --texto-descripcion: #ffffff; 
             
-            --tamano-titulo-menu: 2.25rem;
-            --tamano-categoria: 1.8rem;
-            --tamano-nombre-plato: 1.25rem;
-            --tamano-precio: 1.5rem; 
+            --tamano-titulo-menu: 1.6rem;
+            --tamano-categoria: 1.3rem;
+            --tamano-nombre-plato: 1rem;
+            --tamano-precio: 1.15rem; 
 
             --fuente-titulos: 'Montserrat', sans-serif;
             --fuente-cuerpo: 'Arial', sans-serif; 
@@ -40,15 +40,15 @@
         }
 
         #tv-screen {
-            width: 800px;
-            height: 1200px;
+            width: 720px;
+            height: 1280px;
             background-color: #111;
             background-image: url('https://raw.githubusercontent.com/Invenio-DS/Pollos-Norma-Chacaito/main/Fondo.png');
             background-size: cover;
             background-position: center;
             display: flex;
             flex-direction: column;
-            border: 2px solid #222;
+            border: 1px solid #222;
             overflow: hidden; 
             position: relative;
         }
@@ -56,7 +56,8 @@
         #pages-container {
             flex-grow: 1;
             position: relative;
-            padding: 0 24px;
+            padding: 0 15px;
+            margin-top: 5px;
         }
 
         .page {
@@ -65,11 +66,11 @@
             left: 0;
             width: 100%;
             height: 100%;
-            padding: 0 24px;
+            padding: 0 15px;
             opacity: 0;
             visibility: hidden;
             transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-            transform: translateX(50px);
+            transform: translateX(40px);
         }
 
         .page.active {
@@ -80,7 +81,7 @@
 
         .page.exit {
             opacity: 0;
-            transform: translateX(-100px);
+            transform: translateX(-80px);
         }
 
         .titulo-principal {
@@ -91,25 +92,25 @@
 
         .category-header {
             background: linear-gradient(90deg, var(--color-acento) 0%, rgba(220, 38, 38, 0) 100%);
-            padding: 6px 15px;
-            border-left: 8px solid var(--color-primario);
+            padding: 3px 10px;
+            border-left: 5px solid var(--color-primario);
             font-family: var(--fuente-cuerpo); 
             text-transform: uppercase;
             font-weight: 700;
             font-size: var(--tamano-categoria);
             color: white;
-            margin-top: 10px; 
-            margin-bottom: 10px;
+            margin-top: 8px; 
+            margin-bottom: 6px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
         }
 
         .menu-item {
             background: var(--fondo-tarjeta);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(8px);
-            border-radius: 12px;
-            padding: 12px;
-            height: 125px; 
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(5px);
+            border-radius: 8px;
+            padding: 8px;
+            height: 105px; 
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -122,23 +123,22 @@
             white-space: nowrap; 
             overflow: hidden;
             text-overflow: ellipsis;
-            line-height: 1.2;
+            line-height: 1.1;
         }
 
-        /* Sección de precios con fuente Arial forzada */
         .price-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
-            padding-top: 8px;
-            font-family: Arial, sans-serif; /* Forzamos Arial para precios y etiquetas */
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            padding-top: 5px;
+            font-family: Arial, sans-serif;
         }
 
         .price-group {
             display: flex;
             align-items: baseline;
-            gap: 4px;
+            gap: 2px;
         }
 
         .price-label {
@@ -151,7 +151,7 @@
             color: var(--texto-precios);
             font-weight: bold;
             font-size: var(--tamano-precio);
-            letter-spacing: -1px;
+            letter-spacing: -0.5px;
         }
 
         .text-shadow-strong {
@@ -165,16 +165,30 @@
             overflow: hidden;
         }
 
+        #footer-notice {
+            position: absolute;
+            bottom: 8px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.75rem;
+            font-weight: bold;
+            letter-spacing: 0.1em;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+            z-index: 90;
+        }
+
         #page-indicator {
             position: absolute;
-            bottom: 20px;
-            right: 30px;
-            background: rgba(0,0,0,0.6);
+            bottom: 30px;
+            right: 15px;
+            background: rgba(0,0,0,0.7);
             color: var(--color-primario);
-            padding: 5px 15px;
-            border-radius: 20px;
+            padding: 2px 10px;
+            border-radius: 12px;
             font-weight: bold;
-            font-size: 1.2rem;
+            font-size: 0.9rem;
             border: 1px solid var(--color-primario);
             z-index: 100;
         }
@@ -183,49 +197,50 @@
 <body>
 
     <div id="tv-screen">
-        <header class="pt-4 pb-2 text-center shrink-0">
-            <div class="inline-block bg-black/40 border-y-2 border-brand-yellow/50 px-12 py-2 backdrop-blur-sm">
-                <h1 class="titulo-principal font-black uppercase tracking-[0.4em] italic text-shadow-strong">
+        <header class="pt-4 pb-1 text-center shrink-0">
+            <div class="inline-block bg-black/40 border-y border-brand-yellow/50 px-6 py-1 backdrop-blur-sm">
+                <h1 class="titulo-principal font-black uppercase tracking-[0.3em] italic text-shadow-strong">
                     MENU
                 </h1>
             </div>
         </header>
 
         <div id="status-message" class="flex-grow flex flex-col items-center justify-center text-center">
-            <p id="status-text" class="text-brand-yellow font-black text-2xl animate-pulse uppercase text-shadow-strong text-[#F08F00]">Sincronizando menú...</p>
+            <p id="status-text" class="text-[#F08F00] font-black text-lg animate-pulse uppercase">Cargando Menú...</p>
         </div>
 
         <main id="pages-container"></main>
         
         <div id="page-indicator" class="hidden"></div>
+        <div id="footer-notice">LOS PRECIOS INCLUYEN EL I.V.A.</div>
     </div>
 
     <script>
         const BASE_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ8En6_aEMcaVcFTeOLP3FAdpviYg1aF-6IryDOt--P-r_DcimWNmVXnjZrdVjN8TdcdK-4oAwprFU1/pub?output=csv";
-        const ITEMS_PER_PAGE = 14;
-        const PAGE_DURATION = 15000; 
+        const MAX_ITEMS_PER_PAGE = 14;
+        const PAGE_DURATION = 18000; 
 
         let currentPageIndex = 0;
         let totalPages = 0;
         let pageTimer = null;
 
         function formatBs(value) {
-            if (value === null || value === undefined || value === "") return "0,00";
+            if (!value) return "0,00";
             const num = parseFloat(value.toString().replace(',', '.'));
             return isNaN(num) ? "0,00" : num.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
 
         function formatRef(value) {
-            if (value === null || value === undefined || value === "") return "0.00";
+            if (!value) return "0.00";
             const num = parseFloat(value.toString().replace(',', '.'));
             return isNaN(num) ? "0.00" : num.toFixed(2);
         }
 
         function getDynamicFontSize(text) {
-            const baseSize = 1.25; 
-            const maxLength = 20; 
+            const baseSize = 1.0; 
+            const maxLength = 22; 
             if (text.length <= maxLength) return `${baseSize}rem`;
-            const newSize = Math.max(0.8, baseSize - ((text.length - maxLength) * 0.03));
+            const newSize = Math.max(0.7, baseSize - ((text.length - maxLength) * 0.025));
             return `${newSize}rem`;
         }
 
@@ -244,7 +259,7 @@
                     skipEmptyLines: true,
                     complete: (results) => {
                         if (results.data && results.data.length > 0) {
-                            paginateMenu(results.data);
+                            processAndPaginate(results.data);
                         }
                     }
                 });
@@ -253,37 +268,52 @@
             }
         }
 
-        function paginateMenu(data) {
+        function processAndPaginate(data) {
             const container = document.getElementById('pages-container');
             const statusMsg = document.getElementById('status-message');
             const indicator = document.getElementById('page-indicator');
             
             clearInterval(pageTimer);
             container.innerHTML = '';
-            
-            const categorizedItems = [];
-            data.forEach(row => {
+
+            const pages = [];
+            let currentItems = [];
+            let lastCategory = "";
+
+            data.forEach((row) => {
                 const cat = getColumnValue(row, "CATEGORIA") || "OTROS";
-                categorizedItems.push({ ...row, categoryTitle: cat });
+                
+                if ((cat !== lastCategory && currentItems.length > 0) || currentItems.length >= MAX_ITEMS_PER_PAGE) {
+                    pages.push([...currentItems]);
+                    currentItems = [];
+                }
+                
+                currentItems.push({ ...row, categoryTitle: cat });
+                lastCategory = cat;
             });
 
-            totalPages = Math.ceil(categorizedItems.length / ITEMS_PER_PAGE);
+            if (currentItems.length > 0) {
+                pages.push(currentItems);
+            }
+
+            totalPages = pages.length;
             
-            for (let i = 0; i < totalPages; i++) {
+            pages.forEach((pageItems, i) => {
                 const pageDiv = document.createElement('div');
                 pageDiv.className = `page ${i === 0 ? 'active' : ''}`;
                 pageDiv.id = `page-${i}`;
 
-                const pageItems = categorizedItems.slice(i * ITEMS_PER_PAGE, (i + 1) * ITEMS_PER_PAGE);
                 let lastCategoryInPage = "";
-
                 let pageHtml = "";
 
                 pageItems.forEach((item, idx) => {
                     if (item.categoryTitle !== lastCategoryInPage) {
-                        const isContinuation = (idx === 0 && i > 0 && item.categoryTitle === categorizedItems[(i * ITEMS_PER_PAGE) - 1].categoryTitle);
-                        pageHtml += `<div class="category-header">${item.categoryTitle} ${isContinuation ? '<small class="text-xs opacity-60">(Cont.)</small>' : ''}</div>`;
-                        pageHtml += `<div class="grid grid-cols-2 gap-4 mb-4">`;
+                        if (lastCategoryInPage !== "") pageHtml += `</div>`;
+                        
+                        const isContinuation = (idx === 0 && i > 0 && item.categoryTitle === pages[i-1][pages[i-1].length - 1].categoryTitle);
+                        
+                        pageHtml += `<div class="category-header">${item.categoryTitle} ${isContinuation ? '<small class="text-[9px] opacity-70">(Cont.)</small>' : ''}</div>`;
+                        pageHtml += `<div class="grid grid-cols-2 gap-2 mb-2">`;
                         lastCategoryInPage = item.categoryTitle;
                     }
 
@@ -292,36 +322,30 @@
                     const itemRef = getColumnValue(item, "Ref") || "0";
                     const itemBs = getColumnValue(item, "Bs") || "0";
 
-                    const fontSize = getDynamicFontSize(itemName);
-
                     pageHtml += `
                         <div class="menu-item">
                             <div>
-                                <h3 class="item-name uppercase" style="font-size: ${fontSize}">${itemName}</h3>
-                                <p class="text-white text-[11px] leading-tight line-clamp-3 italic font-medium mt-1">${itemDesc}</p>
+                                <h3 class="item-name uppercase" style="font-size: ${getDynamicFontSize(itemName)}">${itemName}</h3>
+                                <p class="text-white text-[8.5px] leading-[1.1] line-clamp-3 italic font-medium mt-0.5">${itemDesc}</p>
                             </div>
                             <div class="price-row">
                                 <div class="price-group">
-                                    <span class="price-label">REF:</span>
+                                    <span class="price-label">Ref:</span>
                                     <span class="price-value">${formatRef(itemRef)}</span>
                                 </div>
                                 <div class="price-group">
-                                    <span class="price-label">BS:</span>
+                                    <span class="price-label">Bs:</span>
                                     <span class="price-value">${formatBs(itemBs)}</span>
                                 </div>
                             </div>
                         </div>
                     `;
-
-                    if (pageItems[idx + 1] && pageItems[idx + 1].categoryTitle !== lastCategoryInPage) {
-                        pageHtml += `</div>`;
-                    }
                 });
 
                 pageHtml += `</div>`;
                 pageDiv.innerHTML = pageHtml;
                 container.appendChild(pageDiv);
-            }
+            });
 
             statusMsg.style.display = 'none';
             indicator.classList.remove('hidden');
@@ -336,7 +360,6 @@
 
         function startRotation() {
             if (totalPages <= 1) return;
-            
             pageTimer = setInterval(() => {
                 const prevPage = document.getElementById(`page-${currentPageIndex}`);
                 prevPage.classList.remove('active');
@@ -346,15 +369,11 @@
                 const nextPage = document.getElementById(`page-${currentPageIndex}`);
                 
                 nextPage.classList.remove('exit');
-                
                 setTimeout(() => {
                     nextPage.classList.add('active');
-                    setTimeout(() => {
-                        prevPage.classList.remove('exit');
-                    }, 800);
+                    setTimeout(() => { prevPage.classList.remove('exit'); }, 800);
                     updateIndicator();
                 }, 50);
-
             }, PAGE_DURATION);
         }
 
