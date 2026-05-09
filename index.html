@@ -11,20 +11,17 @@
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap');
         
         :root {
-            /* === CONFIGURACIÓN DE COLORES === */
             --color-primario: #F08F00;    
             --color-acento: #dc2626;      
             --fondo-tarjeta: rgba(0, 0, 0, 0.85);
             --texto-precios: #ffffff;     
             --texto-descripcion: #ffffff; 
             
-            /* === CONFIGURACIÓN DE TAMAÑOS === */
             --tamano-titulo-menu: 2.25rem;
             --tamano-categoria: 1.8rem;
             --tamano-nombre-plato: 1.25rem;
-            --tamano-precio: 1.4rem;
+            --tamano-precio: 1.5rem;
 
-            /* === CONFIGURACIÓN DE FUENTES === */
             --fuente-titulos: 'Montserrat', sans-serif;
             --fuente-cuerpo: 'Arial', sans-serif; 
         }
@@ -44,7 +41,7 @@
             width: 800px;
             height: 1200px;
             background-color: #111;
-            background-image: url('https://raw.githubusercontent.com/Invenio-DS/Pollos-Norma-Chacaito/main/Fondo.png');
+            background-image: url('https://raw.githubusercontent.com/Invenio-DS/Pollos-Norma-Chacaito/main/Fondo-Pollos-Norma.png');
             background-size: cover;
             background-position: center;
             display: flex;
@@ -79,7 +76,7 @@
             font-weight: 700;
             font-size: var(--tamano-categoria);
             color: white;
-            margin-top: 10px; /* Reducido para evitar cortes */
+            margin-top: 10px; 
             margin-bottom: 15px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
         }
@@ -90,7 +87,7 @@
             backdrop-filter: blur(8px);
             border-radius: 12px;
             padding: 14px;
-            min-height: 130px; 
+            min-height: 135px; 
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -139,7 +136,6 @@
 <body>
 
     <div id="tv-screen">
-        <!-- Reducido pb-8 a pb-4 para dar más espacio al contenido -->
         <header class="pt-0 pb-4 text-center shrink-0">
             <div class="inline-block bg-black/40 border-y-2 border-brand-yellow/50 px-12 py-2 backdrop-blur-sm">
                 <h1 class="titulo-principal font-black uppercase tracking-[0.4em] italic text-shadow-strong">
@@ -154,13 +150,16 @@
                 <p id="status-text" class="text-brand-yellow font-black text-2xl animate-pulse uppercase text-shadow-strong">Sincronizando menú...</p>
             </div>
 
-            <!-- Eliminado mt-[-42px] para que la primera categoría no se corte -->
-            <div id="menu-container" class="hidden flex flex-col pb-32 mt-2"></div>
+            <div id="menu-container" class="hidden flex flex-col pb-[600px] mt-2"></div>
         </main>
     </div>
 
     <script>
         const BASE_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ8En6_aEMcaVcFTeOLP3FAdpviYg1aF-6IryDOt--P-r_DcimWNmVXnjZrdVjN8TdcdK-4oAwprFU1/pub?output=csv";
+
+        // Variables globales para controlar la animación de scroll
+        let scrollRequestId = null;
+        let isScrollingActive = false;
 
         function formatBs(value) {
             if (value === null || value === undefined || value === "") return "0,00";
@@ -219,6 +218,12 @@
             const statusMsg = document.getElementById('status-message');
             if (!container) return;
 
+            // Detener cualquier animación previa para evitar duplicados en memoria
+            if (scrollRequestId) {
+                cancelAnimationFrame(scrollRequestId);
+                isScrollingActive = false;
+            }
+
             container.innerHTML = '';
             const categories = {};
 
@@ -268,35 +273,53 @@
 
             if (statusMsg) statusMsg.style.display = 'none';
             container.classList.remove('hidden');
-            initScroll();
+            
+            // Iniciar scroll con un pequeño retraso para asegurar que el DOM esté listo
+            setTimeout(initScroll, 1000);
         }
 
         function initScroll() {
             const area = document.getElementById('scroll-area');
-            if (!area || window.isScrolling) return;
-            window.isScrolling = true;
-
+            if (!area || isScrollingActive) return;
+            
+            isScrollingActive = true;
             let speed = 0.8;
             let dir = 1;
             let pause = false;
+            
+            // Reiniciamos posición al inicio cada vez que se carga
+            area.scrollTop = 0;
 
             function step() {
                 if (!pause) {
                     area.scrollTop += (speed * dir);
-                    if (area.scrollTop + area.clientHeight >= area.scrollHeight - 5) {
+                    
+                    // Calculamos el final real (ajustamos según el padding inferior)
+                    const endOfContent = area.scrollHeight - area.clientHeight - 300; 
+                    
+                    if (area.scrollTop >= endOfContent && dir === 1) {
                         pause = true;
-                        setTimeout(() => { dir = -1; speed = 8; pause = false; }, 6000);
+                        setTimeout(() => { 
+                            dir = -1; 
+                            speed = 10; 
+                            pause = false; 
+                        }, 6000);
                     } else if (area.scrollTop <= 0 && dir === -1) {
                         pause = true;
-                        setTimeout(() => { dir = 1; speed = 0.8; pause = false; }, 4000);
+                        setTimeout(() => { 
+                            dir = 1; 
+                            speed = 0.8; 
+                            pause = false; 
+                        }, 4000);
                     }
                 }
-                requestAnimationFrame(step);
+                scrollRequestId = requestAnimationFrame(step);
             }
-            setTimeout(step, 3000);
+            step();
         }
 
         window.onload = fetchMenu;
+        // Intervalo de sincronización de datos
         setInterval(fetchMenu, 60000);
     </script>
 </body>
