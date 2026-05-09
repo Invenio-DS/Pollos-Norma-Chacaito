@@ -20,10 +20,10 @@
             --tamano-titulo-menu: 1.5rem;
             --tamano-categoria: 1.2rem;
             --tamano-nombre-plato: 0.95rem;
-            --tamano-precio: 1.1rem; 
+            --tamano-precio: 1rem; 
 
-            --tamano-fuente-footer: 0.8rem; 
-            --distancia-del-borde: 45px; 
+            --tamano-fuente-footer: 0.7rem; 
+            --distancia-del-borde: 20px; 
 
             --fuente-titulos: 'Montserrat', sans-serif;
             --fuente-cuerpo: 'Arial', sans-serif; 
@@ -94,7 +94,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            padding: 0 15px;
+            padding: 0 20px;
             opacity: 0;
             visibility: hidden;
             transition: all 0.6s ease-in-out;
@@ -181,7 +181,7 @@
             bottom: var(--distancia-del-borde);
             left: 0;
             width: 100%;
-            padding: 0 20px;
+            padding: 0 9px;
             z-index: 1000;
         }
 
@@ -221,7 +221,7 @@
     <div id="tv-screen">
         <header class="text-center">
             <div class="titulo-container">
-                <h1 class="titulo-principal uppercase tracking-[0.3em] italic">MENÚ</h1>
+                <h1 class="titulo-principal uppercase tracking-[0.3em] italic">MENU</h1>
             </div>
         </header>
 
@@ -331,8 +331,8 @@
 
                     const nombre = getVal(item, "NOMBRE") || "SIN NOMBRE";
                     const desc = getVal(item, "DESCRIPCION") || "";
-                    const ref = getVal(item, "REF");
-                    const bs = getVal(item, "BS");
+                    const ref = getVal(item, "Ref");
+                    const bs = getVal(item, "Bs");
 
                     html += `
                         <div class="menu-item">
