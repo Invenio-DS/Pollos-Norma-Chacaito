@@ -28,8 +28,8 @@
             --tamano-precio: 1rem; 
             --tamano-desc: 0.6rem;
 
-            --tamano-fuente-footer: 0.6rem; 
-            --distancia-del-borde: 10px; 
+            --tamano-fuente-footer: 0.9rem; 
+            --distancia-del-borde: 15px; 
 
             --fuente-titulos: 'Bungee', cursive;    
             --fuente-categorias: 'Bungee', cursive; 
@@ -89,7 +89,7 @@
         #pages-container {
             flex-grow: 1;
             position: relative;
-            padding: 0 var(--margen-lateral) 140px var(--margen-lateral); 
+            padding: 0 var(--margen-lateral) 100px var(--margen-lateral); 
             box-sizing: border-box;
         }
 
@@ -130,7 +130,6 @@
             padding-bottom: 3px;
             border-bottom: 0.5px dashed rgba(255, 255, 255, 0.1);
             display: grid;
-            /* Grid 3 columnas: Texto | Gap | Precios */
             grid-template-columns: 1fr 15px 160px; 
             grid-template-rows: auto auto; 
             align-items: start;
@@ -157,7 +156,6 @@
             padding-right: 5px;
         }
 
-        /* AJUSTE DE ALINEACIÓN HORIZONTAL DE PRECIOS */
         .price-box {
             grid-column: 3;
             display: grid;
@@ -165,7 +163,6 @@
             font-family: var(--fuente-precios);
             font-weight: 900;
             font-size: var(--tamano-precio);
-            /* Alinea el texto "Ref/Bs" con el número en la misma base */
             align-items: baseline; 
         }
 
@@ -180,7 +177,7 @@
 
         .price-label {
             color: var(--color-primario);
-            font-size: 1rem; /* Un poco más pequeño que el número */
+            font-size: 0.85rem; 
             font-weight: 700;
             text-align: left;
             text-transform: uppercase;
@@ -209,11 +206,14 @@
             justify-content: center;
             align-items: center;
             background: rgba(0,0,0,0.85);
-            padding: 12px;
+            /* REDUCIDO: Padding vertical de 12px a 6px */
+            padding: 3px 20px; 
             border-radius: 50px;
             border: 2px solid var(--color-primario);
             backdrop-filter: blur(5px);
             position: relative;
+            /* Asegura una altura mínima controlada */
+            min-height: 30px; 
         }
 
         .footer-text {
@@ -221,7 +221,8 @@
             font-size: var(--tamano-fuente-footer);
             font-weight: 800;
             font-family: var(--fuente-categorias);
-            letter-spacing: 0.2em;
+            letter-spacing: 0.15em;
+            line-height: 1;
         }
 
         #page-indicator {
@@ -230,8 +231,9 @@
             color: var(--color-primario);
             font-weight: 900;
             font-family: var(--fuente-titulos);
-            font-size: 0.6rem;
-            letter-spacing: 0.2em;
+            font-size: 0.55rem;
+            letter-spacing: 0.1em;
+            line-height: 1;
         }
     </style>
 </head>
