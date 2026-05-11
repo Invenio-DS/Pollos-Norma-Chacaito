@@ -13,7 +13,7 @@
         :root {
             --color-primario: #F08F00;    
             --color-acento: #dc2626;      
-            --texto-precios: #ffffff;     
+            --texto-precios: #F08F00;     
             --texto-descripcion: #cccccc; 
             
             /* CONTROL INDEPENDIENTE DEL LOGO */
@@ -164,6 +164,7 @@
             font-weight: 900;
             font-size: var(--tamano-precio);
             display: grid;
+            font-color: var(--texto-precios);
             grid-template-columns: 45px 1fr; 
             align-items: baseline;
             min-width: 160px; 
@@ -226,7 +227,7 @@
         </header>
 
         <div id="status-message" class="flex-grow flex flex-col items-center justify-center">
-            <div class="w-12 h-12 border-4 border-t-[#F08F00] border-gray-800 rounded-full animate-spin mb-4"></div>
+            <div class="w-12 h-12 border-4 border-t-[#ffffff] border-gray-800 rounded-full animate-spin mb-4"></div>
             <p class="text-[#F08F00] font-black uppercase tracking-widest text-sm">Cargando Brasas...</p>
         </div>
 
