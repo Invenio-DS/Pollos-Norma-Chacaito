@@ -13,8 +13,12 @@
         :root {
             --color-primario: #F08F00;    
             --color-acento: #dc2626;      
-            --texto-precios: #ffffff;     
             --texto-descripcion: #cccccc; 
+
+            /* --- COLORES DE PRECIOS (CÁMBIALOS AQUÍ) --- */
+            --color-precio-ref: #F08F00;  /* Color para el monto en Ref */
+            --color-precio-bs: #ffffff;   /* Color para el monto en Bs. */
+            /* ------------------------------------------- */
             
             /* CONTROL INDEPENDIENTE DEL LOGO */
             --logo-ancho: 720px;         
@@ -72,11 +76,11 @@
             height: 180px; 
             display: flex;
             align-items: center;
-            justify-content: center; /* Centrado para que el logo no sobre a la derecha */
+            justify-content: center; 
         }
 
         .logo-menu {
-            max-width: 90%; /* Evita que se salga del ancho del TV */
+            max-width: 90%; 
             width: var(--logo-ancho);
             height: var(--logo-alto);
             filter: drop-shadow(0px 8px 15px rgba(0,0,0,1));
@@ -91,7 +95,7 @@
         #pages-container {
             flex-grow: 1;
             position: relative;
-            padding: 0 30px 120px 30px; /* Padding bottom para no chocar con el pie de pagina */
+            padding: 0 30px 140px 30px; 
         }
 
         .page {
@@ -172,14 +176,14 @@
             text-align: left; 
         }
 
-        .price-value {
-            color: var(--texto-precios); /* Ref: se mantiene segun variable */
-            text-align: right; 
+        /* Clases de colores independientes para los montos */
+        .value-ref {
+            color: var(--color-precio-ref) !important;
+            text-align: right;
         }
 
-        /* Clase especifica para el valor en Bs en blanco */
-        .price-value-bs {
-            color: #ffffff !important;
+        .value-bs {
+            color: var(--color-precio-bs) !important;
             text-align: right;
         }
 
@@ -319,7 +323,6 @@
                 let currentCatInPage = "";
 
                 pageData.forEach((item) => {
-                    // Solo renderiza la categoria si cambia dentro de esta misma pagina
                     if (item.catName !== currentCatInPage) {
                         html += `<div class="category-header">${item.catName}</div>`;
                         currentCatInPage = item.catName;
@@ -336,14 +339,14 @@
                                 <div class="item-name">${nombrePlato}</div>
                                 <div class="price-container">
                                     <span class="price-label">Ref:</span>
-                                    <span class="price-value">${formatPrice(refPrice)}</span>
+                                    <span class="value-ref">${formatPrice(refPrice)}</span>
                                 </div>
                             </div>
                             <div class="item-row">
                                 <div class="item-desc">${descPlato}</div>
                                 <div class="price-container" style="font-size: 1rem; opacity: 1;">
                                     <span class="price-label">Bs.</span>
-                                    <span class="price-value-bs">${formatPrice(bsPrice)}</span>
+                                    <span class="value-bs">${formatPrice(bsPrice)}</span>
                                 </div>
                             </div>
                         </div>
