@@ -17,7 +17,7 @@
             --texto-descripcion: #cccccc; 
             
             /* CONTROL INDEPENDIENTE DEL LOGO */
-            --logo-ancho: 600px;         
+            --logo-ancho: 720px;         
             --logo-alto: auto;           
 
             --tamano-titulo-menu: 3.5rem; 
@@ -72,19 +72,16 @@
             height: 180px; 
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: center; /* Centrado para que el logo no sobre a la derecha */
         }
 
         .logo-menu {
-            position: absolute;
-            top: 20px; 
-            left: 20px; 
-            /* Uso de variables independientes */
+            max-width: 90%; /* Evita que se salga del ancho del TV */
             width: var(--logo-ancho);
             height: var(--logo-alto);
             filter: drop-shadow(0px 8px 15px rgba(0,0,0,1));
             opacity: 1 !important;
-            object-fit: contain; /* Asegura que la imagen no se deforme si las proporciones no coinciden */
+            object-fit: contain; 
         }
 
         .titulo-principal {
@@ -94,7 +91,7 @@
         #pages-container {
             flex-grow: 1;
             position: relative;
-            padding: 0 30px;
+            padding: 0 30px 120px 30px; /* Padding bottom para no chocar con el pie de pagina */
         }
 
         .page {
@@ -164,7 +161,6 @@
             font-weight: 900;
             font-size: var(--tamano-precio);
             display: grid;
-            color: var(--texto-precios);
             grid-template-columns: 45px 1fr; 
             align-items: baseline;
             min-width: 160px; 
@@ -177,8 +173,14 @@
         }
 
         .price-value {
-            color: #F08F00;
+            color: var(--texto-precios); /* Ref: se mantiene segun variable */
             text-align: right; 
+        }
+
+        /* Clase especifica para el valor en Bs en blanco */
+        .price-value-bs {
+            color: #ffffff !important;
+            text-align: right;
         }
 
         #footer-float {
@@ -187,6 +189,7 @@
             left: 0;
             width: 100%;
             padding: 0 40px;
+            z-index: 200;
         }
 
         .footer-container {
@@ -316,6 +319,7 @@
                 let currentCatInPage = "";
 
                 pageData.forEach((item) => {
+                    // Solo renderiza la categoria si cambia dentro de esta misma pagina
                     if (item.catName !== currentCatInPage) {
                         html += `<div class="category-header">${item.catName}</div>`;
                         currentCatInPage = item.catName;
@@ -339,7 +343,7 @@
                                 <div class="item-desc">${descPlato}</div>
                                 <div class="price-container" style="font-size: 1rem; opacity: 1;">
                                     <span class="price-label">Bs.</span>
-                                    <span class="price-value">${formatPrice(bsPrice)}</span>
+                                    <span class="price-value-bs">${formatPrice(bsPrice)}</span>
                                 </div>
                             </div>
                         </div>
