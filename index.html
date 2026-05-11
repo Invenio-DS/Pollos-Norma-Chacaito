@@ -16,7 +16,7 @@
             --texto-descripcion: #cccccc; 
 
             /* --- COLORES DE PRECIOS (CÁMBIALOS AQUÍ) --- */
-            --color-precio-ref: #F08F00;  /* Color para el monto en Ref */
+            --color-precio-ref: #ffffff;  /* Color para el monto en Ref */
             --color-precio-bs: #ffffff;   /* Color para el monto en Bs. */
             /* ------------------------------------------- */
             
@@ -88,10 +88,6 @@
             object-fit: contain; 
         }
 
-        .titulo-principal {
-            display: none;
-        }
-
         #pages-container {
             flex-grow: 1;
             position: relative;
@@ -154,7 +150,7 @@
 
         .item-desc {
             color: var(--texto-descripcion);
-            font-size: 0.65rem;
+            font-size: 0.60rem;
             flex: 1;
             margin-top: 0px;
             font-style: italic;
@@ -172,11 +168,10 @@
 
         .price-label {
             color: var(--color-primario);
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             text-align: left; 
         }
 
-        /* Clases de colores independientes para los montos */
         .value-ref {
             color: var(--color-precio-ref) !important;
             text-align: right;
@@ -230,7 +225,6 @@
     <div id="tv-screen">
         <header>
             <img src="https://raw.githubusercontent.com/Invenio-DS/Pollos-Norma-Chacaito/main/Logo-Solo-720p.png" alt="Logo Pollos Norma" class="logo-menu">
-            <h1 class="titulo-principal">MENÚ</h1>
         </header>
 
         <div id="status-message" class="flex-grow flex flex-col items-center justify-center">
@@ -249,13 +243,43 @@
     </div>
 
     <script>
+        // CONFIGURACIÓN DE CACHÉ Y SINCRONIZACIÓN
         const BASE_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ8En6_aEMcaVcFTeOLP3FAdpviYg1aF-6IryDOt--P-r_DcimWNmVXnjZrdVjN8TdcdK-4oAwprFU1/pub?output=csv";
         const MAX_ITEMS_PER_PAGE = 11; 
         const PAGE_DURATION = 18000; 
+        const SYNC_INTERVAL = 3600000; // 1 Hora (en milisegundos)
 
         let currentPageIndex = 0;
         let totalPages = 0;
         let pageTimer = null;
+
+        // 1. REGISTRO DE SERVICE WORKER PARA ALOJAMIENTO EN CACHÉ (PWA)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                const swCode = `
+                    const CACHE_NAME = 'pollos-norma-v1';
+                    const ASSETS = [
+                        '/',
+                        'index.html',
+                        'https://cdn.tailwindcss.com',
+                        'https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js',
+                        'https://raw.githubusercontent.com/Invenio-DS/Pollos-Norma-Chacaito/main/Fondo.png',
+                        'https://raw.githubusercontent.com/Invenio-DS/Pollos-Norma-Chacaito/main/Logo-Solo-720p.png'
+                    ];
+
+                    self.addEventListener('install', (e) => {
+                        e.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS)));
+                    });
+
+                    self.addEventListener('fetch', (e) => {
+                        e.respondWith(caches.match(e.request).then((res) => res || fetch(e.request)));
+                    });
+                `;
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(blob);
+                navigator.serviceWorker.register(swUrl).catch(err => console.log('SW error:', err));
+            });
+        }
 
         function getVal(row, key) {
             if (!row) return "";
@@ -278,8 +302,10 @@
             return isNaN(n) ? "0,00" : n.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
 
+        // 2. FUNCIÓN DE CARGA CON CACHE BUSTING
         async function fetchMenu() {
             try {
+                // El parámetro 't' asegura que no lea una versión vieja del CSV de Google
                 const response = await fetch(`${BASE_URL}&t=${Date.now()}`);
                 const csvText = await response.text();
                 Papa.parse(csvText, {
@@ -289,10 +315,15 @@
                         if (results.data?.length > 0) {
                             const cleanData = results.data.filter(r => getVal(r, "NOMBRE") !== "");
                             renderMenu(cleanData);
+                            console.log("Menú actualizado: " + new Date().toLocaleTimeString());
                         }
                     }
                 });
-            } catch (err) { console.error("Error al obtener datos:", err); }
+            } catch (err) { 
+                console.error("Error al obtener datos:", err);
+                // Si falla por internet, intentamos de nuevo en 1 minuto
+                setTimeout(fetchMenu, 60000);
+            }
         }
 
         function renderMenu(data) {
@@ -379,8 +410,9 @@
             }, PAGE_DURATION);
         }
 
+        // INICIO Y SINCRONIZACIÓN POR HORA
         window.onload = fetchMenu;
-        setInterval(fetchMenu, 300000); 
+        setInterval(fetchMenu, SYNC_INTERVAL); 
     </script>
 </body>
 </html>
