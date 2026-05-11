@@ -18,7 +18,7 @@
             --color-precio-ref: #F08F00;
             --color-precio-bs: #ffffff;
             
-            --margen-lateral: 30px; 
+            --margen-lateral: 35px; 
 
             --logo-ancho: 100%;         
             --logo-alto: auto;           
@@ -26,10 +26,12 @@
             --tamano-categoria: 1.2rem;
             --tamano-nombre-plato: 1.1rem;
             --tamano-precio: 1rem; 
-            --tamano-desc: 0.5rem;
+            --tamano-desc: 0.55rem;
 
             --tamano-fuente-footer: 0.9rem; 
-            --distancia-del-borde: 15px; 
+            
+            /* ALTURA DEL PIE DE PÁGINA (Súbelo o bájalo aquí) */
+            --distancia-del-borde: 20px; 
 
             --fuente-titulos: 'Bungee', cursive;    
             --fuente-categorias: 'Bungee', cursive; 
@@ -86,11 +88,14 @@
             object-fit: contain; 
         }
 
+        /* --- CONTENEDOR PRINCIPAL DE PÁGINAS --- */
         #pages-container {
             flex-grow: 1;
             position: relative;
-            padding: 0 var(--margen-lateral) 100px var(--margen-lateral); 
+            /* Padding inferior aumentado para que los items no toquen el footer */
+            padding: 0 var(--margen-lateral) 110px var(--margen-lateral); 
             box-sizing: border-box;
+            overflow: hidden; /* Evita que los items se salgan visualmente */
         }
 
         .page {
@@ -98,7 +103,8 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 100%;
+            /* Altura máxima para asegurar que respeta el espacio del footer */
+            height: 95%;
             padding: inherit;
             box-sizing: border-box;
             opacity: 0;
@@ -117,18 +123,18 @@
             font-family: var(--fuente-categorias);
             font-size: var(--tamano-categoria);
             text-transform: uppercase;
-            padding: 3px 9px;
-            margin: 12px 0 3px 0;
+            padding: 4px 12px;
+            margin: 15px 0 5px 0;
             display: inline-block;
             transform: rotate(-1deg);
-            border-radius: 3px;
+            border-radius: 4px;
             box-shadow: 3px 3px 0px rgba(0,0,0,0.5);
         }
 
         .menu-item {
-            margin-bottom: 9px;
-            padding-bottom: 3px;
-            border-bottom: 0.5px dashed rgba(255, 255, 255, 0.1);
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
             display: grid;
             grid-template-columns: 1fr 15px 160px; 
             grid-template-rows: auto auto; 
@@ -143,6 +149,7 @@
             text-transform: uppercase;
             font-size: var(--tamano-nombre-plato);
             text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+            line-height: 1.1;
         }
 
         .item-desc {
@@ -151,9 +158,9 @@
             color: var(--texto-descripcion);
             font-size: var(--tamano-desc);
             font-style: italic;
-            line-height: 1.1;
-            margin-top: 1px;
-            padding-right: 5px;
+            line-height: 1.2;
+            margin-top: 2px;
+            padding-right: 10px;
         }
 
         .price-box {
@@ -191,6 +198,7 @@
         .value-ref { color: var(--color-precio-ref) !important; }
         .value-bs { color: var(--color-precio-bs) !important; }
 
+        /* --- PIE DE PÁGINA FLOTANTE --- */
         #footer-float {
             position: absolute;
             bottom: var(--distancia-del-borde);
@@ -198,22 +206,20 @@
             width: 100%;
             padding: 0 var(--margen-lateral);
             box-sizing: border-box;
-            z-index: 150;
+            z-index: 200;
         }
 
         .footer-container {
             display: flex;
             justify-content: center;
             align-items: center;
-            background: rgba(0,0,0,0.85);
-            /* REDUCIDO: Padding vertical de 12px a 6px */
-            padding: 3px 20px; 
+            background: rgba(0,0,0,0.9);
+            padding: 4px 20px; 
             border-radius: 50px;
             border: 2px solid var(--color-primario);
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(8px);
             position: relative;
-            /* Asegura una altura mínima controlada */
-            min-height: 30px; 
+            min-height: 35px; 
         }
 
         .footer-text {
@@ -221,7 +227,7 @@
             font-size: var(--tamano-fuente-footer);
             font-weight: 600;
             font-family: var(--fuente-categorias);
-            letter-spacing: 0.2em;
+            letter-spacing: 0.15em;
             line-height: 1;
         }
 
@@ -231,8 +237,8 @@
             color: #ffffff;
             font-weight: 900;
             font-family: var(--fuente-titulos);
-            font-size: 0.6rem;
-            letter-spacing: 0.2em;
+            font-size: 0.65rem;
+            letter-spacing: 0.1em;
             line-height: 1;
         }
     </style>
