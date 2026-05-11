@@ -15,19 +15,18 @@
             --color-acento: #dc2626;      
             --texto-descripcion: #cccccc; 
 
-            /* --- COLORES DE PRECIOS (CÁMBIALOS AQUÍ) --- */
-            --color-precio-ref: #F08F00;  /* Color para el monto en Ref */
-            --color-precio-bs: #ffffff;   /* Color para el monto en Bs. */
-            /* ------------------------------------------- */
+            --color-precio-ref: #ffffff;
+            --color-precio-bs: #ffffff;
             
-            /* CONTROL INDEPENDIENTE DEL LOGO */
-            --logo-ancho: 720px;         
+            --margen-lateral: 30px; 
+
+            --logo-ancho: 100%;         
             --logo-alto: auto;           
 
-            --tamano-titulo-menu: 3.5rem; 
-            --tamano-categoria: 1.3rem;
-            --tamano-nombre-plato: 0.8rem;
-            --tamano-precio: 1rem; 
+            --tamano-categoria: 1.35rem;
+            --tamano-nombre-plato: 0.95rem;
+            --tamano-precio: 1.05rem; 
+            --tamano-desc: 0.65rem;
 
             --tamano-fuente-footer: 0.6rem; 
             --distancia-del-borde: 10px; 
@@ -73,25 +72,25 @@
             z-index: 100;
             position: relative;
             width: 100%;
-            height: 160px; 
+            height: 180px; 
             display: flex;
             align-items: center;
-            justify-content: center; 
+            justify-content: center;
+            padding: 0 var(--margen-lateral);
         }
 
         .logo-menu {
-            max-width: 95%; 
             width: var(--logo-ancho);
             height: var(--logo-alto);
             filter: drop-shadow(0px 8px 15px rgba(0,0,0,1));
-            opacity: 1 !important;
             object-fit: contain; 
         }
 
         #pages-container {
             flex-grow: 1;
             position: relative;
-            padding: 0 20px 180px 20px; 
+            padding: 0 var(--margen-lateral) 140px var(--margen-lateral); 
+            box-sizing: border-box;
         }
 
         .page {
@@ -100,7 +99,8 @@
             left: 0;
             width: 100%;
             height: 100%;
-            padding: 0 60px;
+            padding: inherit;
+            box-sizing: border-box;
             opacity: 0;
             visibility: hidden;
             transition: all 0.6s ease-in-out;
@@ -118,7 +118,7 @@
             font-size: var(--tamano-categoria);
             text-transform: uppercase;
             padding: 5px 15px;
-            margin: 25px 0 15px 0;
+            margin: 20px 0 8px 0;
             display: inline-block;
             transform: rotate(-1deg);
             border-radius: 5px;
@@ -126,68 +126,81 @@
         }
 
         .menu-item {
-            margin-bottom: 3px;
-            padding-bottom: 1px;
-            border-bottom: 0.5px dashed rgba(255, 255, 255, 0.15);
-        }
-
-        .item-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            width: 100%;
-            gap: 10px;
+            margin-bottom: 9px;
+            padding-bottom: 3px;
+            border-bottom: 0.5px dashed rgba(255, 255, 255, 0.1);
+            display: grid;
+            /* Grid 3 columnas: Texto | Gap | Precios */
+            grid-template-columns: 1fr 15px 160px; 
+            grid-template-rows: auto auto; 
+            align-items: start;
         }
 
         .item-name {
+            grid-column: 1;
+            grid-row: 1;
             color: #F08F00;
             font-weight: 900;
             text-transform: uppercase;
             font-size: var(--tamano-nombre-plato);
-            flex: 1;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
         }
 
         .item-desc {
+            grid-column: 1;
+            grid-row: 2; 
             color: var(--texto-descripcion);
-            font-size: 0.60rem;
-            flex: 1;
-            margin-top: 0px;
+            font-size: var(--tamano-desc);
             font-style: italic;
+            line-height: 1.1;
+            margin-top: 1px;
+            padding-right: 5px;
         }
 
-        .price-container {
+        /* AJUSTE DE ALINEACIÓN HORIZONTAL DE PRECIOS */
+        .price-box {
+            grid-column: 3;
+            display: grid;
+            grid-template-columns: 45px 1fr;
             font-family: var(--fuente-precios);
             font-weight: 900;
             font-size: var(--tamano-precio);
-            display: grid;
-            grid-template-columns: 45px 1fr; 
-            align-items: baseline;
-            min-width: 160px; 
+            /* Alinea el texto "Ref/Bs" con el número en la misma base */
+            align-items: baseline; 
+        }
+
+        .price-ref-box {
+            grid-row: 1;
+        }
+
+        .price-bs-box {
+            grid-row: 2;
+            margin-top: 2px;
         }
 
         .price-label {
             color: var(--color-primario);
-            font-size: 0.7rem;
-            text-align: left; 
+            font-size: 0.75rem; /* Un poco más pequeño que el número */
+            font-weight: 700;
+            text-align: left;
+            text-transform: uppercase;
         }
 
-        .value-ref {
-            color: var(--color-precio-ref) !important;
+        .price-value {
             text-align: right;
+            line-height: 1;
         }
 
-        .value-bs {
-            color: var(--color-precio-bs) !important;
-            text-align: right;
-        }
+        .value-ref { color: var(--color-precio-ref) !important; }
+        .value-bs { color: var(--color-precio-bs) !important; }
 
         #footer-float {
             position: absolute;
             bottom: var(--distancia-del-borde);
             left: 0;
             width: 100%;
-            padding: 0 40px;
+            padding: 0 var(--margen-lateral);
+            box-sizing: border-box;
             z-index: 150;
         }
 
@@ -196,10 +209,11 @@
             justify-content: center;
             align-items: center;
             background: rgba(0,0,0,0.85);
-            padding: 9px;
+            padding: 12px;
             border-radius: 50px;
             border: 2px solid var(--color-primario);
             backdrop-filter: blur(5px);
+            position: relative;
         }
 
         .footer-text {
@@ -212,7 +226,7 @@
 
         #page-indicator {
             position: absolute;
-            right: 25px;
+            right: 20px;
             color: var(--color-primario);
             font-weight: 900;
             font-family: var(--fuente-titulos);
@@ -224,12 +238,12 @@
 <body>
     <div id="tv-screen">
         <header>
-            <img src="https://raw.githubusercontent.com/Invenio-DS/Pollos-Norma-Chacaito/main/Logo-Solo-720p.png" alt="Logo Pollos Norma" class="logo-menu">
+            <img src="https://raw.githubusercontent.com/Invenio-DS/Pollos-Norma-Chacaito/main/Logo-Solo-720p.png" alt="Logo" class="logo-menu">
         </header>
 
         <div id="status-message" class="flex-grow flex flex-col items-center justify-center">
             <div class="w-12 h-12 border-4 border-t-[#ffffff] border-gray-800 rounded-full animate-spin mb-4"></div>
-            <p class="text-[#F08F00] font-black uppercase tracking-widest text-sm">Cargando Brasas...</p>
+            <p class="text-[#F08F00] font-black uppercase tracking-widest text-sm">Sincronizando Precios...</p>
         </div>
 
         <main id="pages-container"></main>
@@ -243,43 +257,14 @@
     </div>
 
     <script>
-        // CONFIGURACIÓN DE CACHÉ Y SINCRONIZACIÓN
         const BASE_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ8En6_aEMcaVcFTeOLP3FAdpviYg1aF-6IryDOt--P-r_DcimWNmVXnjZrdVjN8TdcdK-4oAwprFU1/pub?output=csv";
-        const MAX_ITEMS_PER_PAGE = 10; 
+        const MAX_ITEMS_PER_PAGE = 9; 
         const PAGE_DURATION = 18000; 
-        const SYNC_INTERVAL = 3600000; // 1 Hora (en milisegundos)
+        const SYNC_INTERVAL = 3600000; 
 
         let currentPageIndex = 0;
         let totalPages = 0;
         let pageTimer = null;
-
-        // 1. REGISTRO DE SERVICE WORKER PARA ALOJAMIENTO EN CACHÉ (PWA)
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                const swCode = `
-                    const CACHE_NAME = 'pollos-norma-v1';
-                    const ASSETS = [
-                        '/',
-                        'index.html',
-                        'https://cdn.tailwindcss.com',
-                        'https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js',
-                        'https://raw.githubusercontent.com/Invenio-DS/Pollos-Norma-Chacaito/main/Fondo.png',
-                        'https://raw.githubusercontent.com/Invenio-DS/Pollos-Norma-Chacaito/main/Logo-Solo-720p.png'
-                    ];
-
-                    self.addEventListener('install', (e) => {
-                        e.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS)));
-                    });
-
-                    self.addEventListener('fetch', (e) => {
-                        e.respondWith(caches.match(e.request).then((res) => res || fetch(e.request)));
-                    });
-                `;
-                const blob = new Blob([swCode], { type: 'application/javascript' });
-                const swUrl = URL.createObjectURL(blob);
-                navigator.serviceWorker.register(swUrl).catch(err => console.log('SW error:', err));
-            });
-        }
 
         function getVal(row, key) {
             if (!row) return "";
@@ -287,25 +272,20 @@
             const keys = Object.keys(row);
             let actualKey = keys.find(k => k.trim().toUpperCase() === targetKey);
             if (!actualKey && targetKey === "NOMBRE") {
-                actualKey = keys.find(k => k.toUpperCase().includes("NOMBRE") || k.toUpperCase().includes("PLATO") || k.toUpperCase().includes("PRODUCTO"));
-            }
-            if (!actualKey) {
-                actualKey = keys.find(k => k.toUpperCase().includes(targetKey));
+                actualKey = keys.find(k => k.toUpperCase().includes("NOMBRE") || k.toUpperCase().includes("PLATO"));
             }
             return actualKey ? (row[actualKey] ? row[actualKey].trim() : "") : "";
         }
 
         function formatPrice(val) {
-            if (val === undefined || val === null || val === "" || val === "0") return "0,00";
+            if (!val || val === "0") return "0,00";
             let cleanVal = String(val).replace(/[^\d,.-]/g, '').replace(',', '.');
             let n = parseFloat(cleanVal);
-            return isNaN(n) ? "0,00" : n.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            return isNaN(n) ? "0,00" : n.toLocaleString('de-DE', { minimumFractionDigits: 2 });
         }
 
-        // 2. FUNCIÓN DE CARGA CON CACHE BUSTING
         async function fetchMenu() {
             try {
-                // El parámetro 't' asegura que no lea una versión vieja del CSV de Google
                 const response = await fetch(`${BASE_URL}&t=${Date.now()}`);
                 const csvText = await response.text();
                 Papa.parse(csvText, {
@@ -315,14 +295,12 @@
                         if (results.data?.length > 0) {
                             const cleanData = results.data.filter(r => getVal(r, "NOMBRE") !== "");
                             renderMenu(cleanData);
-                            console.log("Menú actualizado: " + new Date().toLocaleTimeString());
                         }
                     }
                 });
             } catch (err) { 
-                console.error("Error al obtener datos:", err);
-                // Si falla por internet, intentamos de nuevo en 1 minuto
-                setTimeout(fetchMenu, 60000);
+                console.error("Fallo:", err);
+                setTimeout(fetchMenu, 5000);
             }
         }
 
@@ -334,7 +312,6 @@
             
             const pages = [];
             let currentItems = [];
-            
             data.forEach((row) => {
                 const cat = getVal(row, "CATEGORIA") || "VARIOS";
                 if (currentItems.length >= MAX_ITEMS_PER_PAGE) {
@@ -359,29 +336,26 @@
                         currentCatInPage = item.catName;
                     }
                     
-                    const nombrePlato = getVal(item, "NOMBRE");
-                    const refPrice = getVal(item, "REF");
-                    const bsPrice = getVal(item, "BS");
-                    const descPlato = getVal(item, "DESCRIPCION");
+                    const nombre = getVal(item, "NOMBRE");
+                    const ref = formatPrice(getVal(item, "REF"));
+                    const bs = formatPrice(getVal(item, "BS"));
+                    const desc = getVal(item, "DESCRIPCION");
 
                     html += `
                         <div class="menu-item">
-                            <div class="item-row">
-                                <div class="item-name">${nombrePlato}</div>
-                                <div class="price-container">
-                                    <span class="price-label">Ref:</span>
-                                    <span class="value-ref">${formatPrice(refPrice)}</span>
-                                </div>
+                            <div class="item-name">${nombre}</div>
+                            <div class="item-desc">${desc}</div>
+                            
+                            <div class="price-box price-ref-box">
+                                <span class="price-label">Ref:</span>
+                                <span class="price-value value-ref">${ref}</span>
                             </div>
-                            <div class="item-row">
-                                <div class="item-desc">${descPlato}</div>
-                                <div class="price-container" style="font-size: 1rem; opacity: 1;">
-                                    <span class="price-label">Bs.</span>
-                                    <span class="value-bs">${formatPrice(bsPrice)}</span>
-                                </div>
+                            
+                            <div class="price-box price-bs-box">
+                                <span class="price-label">Bs.</span>
+                                <span class="price-value value-bs">${bs}</span>
                             </div>
-                        </div>
-                    `;
+                        </div>`;
                 });
                 pageDiv.innerHTML = html;
                 container.appendChild(pageDiv);
@@ -394,24 +368,25 @@
         }
 
         function updateIndicator() {
-            document.getElementById('page-indicator').innerText = `${currentPageIndex + 1}/${totalPages}`;
+            const el = document.getElementById('page-indicator');
+            if (el) el.innerText = `${currentPageIndex + 1}/${totalPages}`;
         }
 
         function startRotation() {
             if (totalPages <= 1) return;
             if (pageTimer) clearInterval(pageTimer);
             pageTimer = setInterval(() => {
-                const activePage = document.querySelector('.page.active');
-                if (activePage) activePage.classList.remove('active');
+                const active = document.querySelector('.page.active');
+                if (active) active.classList.remove('active');
                 
                 currentPageIndex = (currentPageIndex + 1) % totalPages;
-                document.getElementById(`page-${currentPageIndex}`).classList.add('active');
+                const next = document.getElementById(`page-${currentPageIndex}`);
+                if (next) next.classList.add('active');
                 updateIndicator();
             }, PAGE_DURATION);
         }
 
-        // INICIO Y SINCRONIZACIÓN POR HORA
-        window.onload = fetchMenu;
+        window.addEventListener('DOMContentLoaded', fetchMenu);
         setInterval(fetchMenu, SYNC_INTERVAL); 
     </script>
 </body>
