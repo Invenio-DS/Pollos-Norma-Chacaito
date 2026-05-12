@@ -26,12 +26,12 @@
             --tamano-categoria: 1.2rem;
             --tamano-nombre-plato: 1rem;
             --tamano-precio: 1rem; 
-            --tamano-desc: 0.55rem;
+            --tamano-desc: 0.5rem;
 
             --tamano-fuente-footer: 0.6rem; 
             
-            /* ALTURA DEL PIE DE PÁGINA (Súbelo o bájalo aquí) */
-            --distancia-del-borde: 6px; 
+            /* ALTURA DEL PIE DE PÁGINA */
+            --distancia-del-borde: 10px; 
 
             --fuente-titulos: 'Bungee', cursive;    
             --fuente-categorias: 'Bungee', cursive; 
@@ -88,14 +88,12 @@
             object-fit: contain; 
         }
 
-        /* --- CONTENEDOR PRINCIPAL DE PÁGINAS --- */
         #pages-container {
             flex-grow: 1;
             position: relative;
-            /* Padding inferior aumentado para que los items no toquen el footer */
-            padding: 0 var(--margen-lateral) 130px var(--margen-lateral); 
+            padding: 0 var(--margen-lateral) 140px var(--margen-lateral); 
             box-sizing: border-box;
-            overflow: hidden; /* Evita que los items se salgan visualmente */
+            overflow: hidden; 
         }
 
         .page {
@@ -103,8 +101,7 @@
             top: 0;
             left: 0;
             width: 100%;
-            /* Altura máxima para asegurar que respeta el espacio del footer */
-            height: 80%;
+            height: 100%;
             padding: inherit;
             box-sizing: border-box;
             opacity: 0;
@@ -123,7 +120,7 @@
             font-family: var(--fuente-categorias);
             font-size: var(--tamano-categoria);
             text-transform: uppercase;
-            padding: 3px 12px;
+            padding: 3px 9px;
             margin: 9px 0 5px 0;
             display: inline-block;
             transform: rotate(-1deg);
@@ -134,7 +131,7 @@
         .menu-item {
             margin-bottom: 8px;
             padding-bottom: 4px;
-            border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+            border-bottom: 0.5px dashed rgba(255, 255, 255, 0.1);
             display: grid;
             grid-template-columns: 1fr 15px 160px; 
             grid-template-rows: auto auto; 
@@ -158,8 +155,8 @@
             color: var(--texto-descripcion);
             font-size: var(--tamano-desc);
             font-style: italic;
-            line-height: 1.2;
-            margin-top: 2px;
+            line-height: 1;
+            margin-top: 1.5px;
             padding-right: 10px;
         }
 
@@ -169,7 +166,7 @@
             grid-template-columns: 45px 1fr;
             font-family: var(--fuente-precios);
             font-weight: 900;
-            font-size: var(--tamano-precio);
+            font-size: 1rem;
             align-items: baseline; 
         }
 
@@ -179,15 +176,15 @@
 
         .price-bs-box {
             grid-row: 2;
-            margin-top: 2px;
+            margin-top: 1.5px;
         }
 
         .price-label {
             color: var(--color-primario);
-            font-size: 0.85rem; 
+            font-size: 1rem; 
             font-weight: 700;
             text-align: left;
-            text-transform: uppercase;
+            /* Se eliminó text-transform: uppercase para respetar la capitalización exacta */
         }
 
         .price-value {
@@ -210,36 +207,48 @@
         }
 
         .footer-container {
-            display: flex;
-            justify-content: center;
+            display: grid;
+            grid-template-columns: 1fr auto 0.8fr; 
             align-items: center;
-            background: rgba(0,0,0,0.9);
-            padding: 4px 18px; 
+            background: rgba(0,0,0,0.95);
+            padding: 9px 15px; 
             border-radius: 30px;
             border: 2px solid var(--color-primario);
-            backdrop-filter: blur(8px);
-            position: relative;
-            min-height: 30px; 
+            backdrop-filter: blur(10px);
+            min-height: 36px; 
         }
 
-        .footer-text {
-            color: #ffffff;
+        .footer-column {
+            display: flex;
+            align-items: center;
             font-size: var(--tamano-fuente-footer);
-            font-weight: 600;
+            font-weight: 800;
             font-family: var(--fuente-cuerpo);
-            letter-spacing: 0.15em;
-            line-height: 1;
+            color: #ffffff;
+        }
+
+        .footer-left { justify-content: flex-start; }
+        .footer-center { 
+            justify-content: center;
+            letter-spacing: 0.2em;
+            text-align: center;
+        }
+        .footer-right { justify-content: flex-end; }
+
+        .tasa-bcv-label {
+            color: var(--color-primario);
+            margin-right: 6px;
+        }
+
+        #tasa-valor {
+            color: #ffffff;
+            font-family: var(--fuente-precios);
         }
 
         #page-indicator {
-            position: absolute;
-            right: 20px;
-            color: #ffffff;
-            font-weight: 600;
-            font-family: var(--fuente-cuerpo);
-            font-size: var(--tamano-fuente-footer);
-            letter-spacing: 0.15em;
-            line-height: 1;
+            color: var(--color-primario);
+            font-family: #ffffff;
+            letter-spacing: 0.2em;
         }
     </style>
 </head>
@@ -251,15 +260,28 @@
 
         <div id="status-message" class="flex-grow flex flex-col items-center justify-center">
             <div class="w-12 h-12 border-4 border-t-[#ffffff] border-gray-800 rounded-full animate-spin mb-4"></div>
-            <p class="text-[#F08F00] font-black uppercase tracking-widest text-sm">Sincronizando Precios...</p>
+            <p class="text-[#F08F00] font-black uppercase tracking-widest text-sm">Sincronizando Menú...</p>
         </div>
 
         <main id="pages-container"></main>
         
         <div id="footer-float">
             <div class="footer-container">
-                <div class="footer-text">LOS PRECIOS INCLUYEN EL I.V.A.</div>
-                <div id="page-indicator" class="hidden"></div>
+                <!-- IZQUIERDA: TASA BCV -->
+                <div class="footer-column footer-left">
+                    <span class="tasa-bcv-label">TASA BCV:</span>
+                    <span id="tasa-valor">---</span>
+                </div>
+                
+                <!-- CENTRO: TEXTO IVA -->
+                <div class="footer-column footer-center">
+                    LOS PRECIOS INCLUYEN EL I.V.A.
+                </div>
+                
+                <!-- DERECHA: PÁGINA -->
+                <div class="footer-column footer-right">
+                    <span id="page-indicator">1/1</span>
+                </div>
             </div>
         </div>
     </div>
@@ -285,29 +307,50 @@
             return actualKey ? (row[actualKey] ? row[actualKey].trim() : "") : "";
         }
 
+        // Formato para precios generales (2 decimales)
         function formatPrice(val) {
             if (!val || val === "0") return "0,00";
             let cleanVal = String(val).replace(/[^\d,.-]/g, '').replace(',', '.');
             let n = parseFloat(cleanVal);
-            return isNaN(n) ? "0,00" : n.toLocaleString('de-DE', { minimumFractionDigits: 2 });
+            return isNaN(n) ? "0,00" : n.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        // Formato específico para la Tasa (4 decimales)
+        function formatPrice4Decimals(val) {
+            if (!val || val === "0") return "0,0000";
+            let cleanVal = String(val).replace(/[^\d,.-]/g, '').replace(',', '.');
+            let n = parseFloat(cleanVal);
+            return isNaN(n) ? "0,0000" : n.toLocaleString('de-DE', { minimumFractionDigits: 4, maximumFractionDigits: 4 });
         }
 
         async function fetchMenu() {
             try {
                 const response = await fetch(`${BASE_URL}&t=${Date.now()}`);
                 const csvText = await response.text();
+                
                 Papa.parse(csvText, {
                     header: true,
                     skipEmptyLines: true,
                     complete: (results) => {
                         if (results.data?.length > 0) {
-                            const cleanData = results.data.filter(r => getVal(r, "NOMBRE") !== "");
+                            const data = results.data;
+                            
+                            // EXTRAER TASA BCV DE LA COLUMNA F (Sexta columna, índice 5)
+                            const keys = Object.keys(data[0]);
+                            const colFKey = keys[5]; 
+                            const bcvVal = data[0][colFKey];
+                            
+                            if (bcvVal) {
+                                document.getElementById('tasa-valor').innerText = formatPrice4Decimals(bcvVal);
+                            }
+
+                            const cleanData = data.filter(r => getVal(r, "NOMBRE") !== "");
                             renderMenu(cleanData);
                         }
                     }
                 });
             } catch (err) { 
-                console.error("Fallo:", err);
+                console.error("Error cargando datos:", err);
                 setTimeout(fetchMenu, 5000);
             }
         }
@@ -315,7 +358,6 @@
         function renderMenu(data) {
             const container = document.getElementById('pages-container');
             const status = document.getElementById('status-message');
-            const indicator = document.getElementById('page-indicator');
             container.innerHTML = '';
             
             const pages = [];
@@ -370,7 +412,6 @@
             });
 
             status.style.display = 'none';
-            indicator.classList.remove('hidden');
             updateIndicator();
             startRotation();
         }
