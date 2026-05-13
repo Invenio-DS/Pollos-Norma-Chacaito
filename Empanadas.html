@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pollos Norma - Menú Vertical Adaptable</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@700&display=swap" rel="stylesheet">
+    <style>
+        /* Ajuste base para evitar scroll y asegurar llenado total */
+        * {
+            box-sizing: border-box;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            overflow: hidden;
+            font-family: 'Roboto Mono', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Contenedor flexible que ocupa el 100% de la pantalla del TV */
+        .container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            max-width: 100%;
+            max-height: 100%;
+            overflow: hidden;
+        }
+
+        /* El video se adapta al contenedor manteniendo su proporción */
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Asegura que cubra todo el espacio vertical/horizontal */
+            display: block;
+        }
+
+        /* Contenedores individuales de precios */
+        .price-overlay {
+            position: absolute;
+            display: flex;
+            align-items: baseline;
+            gap: 15px;
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out;
+            z-index: 10;
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.9);
+            color: #fff;
+            white-space: nowrap;
+        }
+
+        .label {
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+            opacity: 0.9;
+        }
+
+        .price-value {
+            font-size: 1.8rem;
+            letter-spacing: -1px;
+            font-weight: bold;
+        }
+
+        #valRef { color: #f08f00; } /* Naranja */
+        #valBs { color: #ffffff; }  /* Blanco */
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <video autoplay loop muted playsinline id="videoPlayer">
+            <source src="https://raw.githubusercontent.com/Invenio-DS/Pollos-Norma-Chacaito/main/Empanadas%20720x1280.mp4" type="video/mp4">
+        </video>
+
+        <div class="price-overlay" id="overlayRef">
+            <span class="label">Ref:</span>
+            <span class="price-value" id="valRef">...</span>
+        </div>
+
+        <div class="price-overlay" id="overlayBs">
+            <span class="label">Bs.</span>
+            <span class="price-value" id="valBs">...</span>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // CONFIGURACIÓN DE POSICIONES (PORCENTAJE %)
+        // Se usa % para que sea más fácil ubicar en pantallas adaptables
+        // ==========================================
+        const REF_X_PCT = 74; // Centro horizontal
+        const REF_Y_PCT = 56; // Un poco arriba del centro
+        
+        const BS_X_PCT = 82;  // Centro horizontal
+        const BS_Y_PCT = 61;  // Un poco abajo del centro
+
+        function applyPositions() {
+            const overlayRef = document.getElementById('overlayRef');
+            overlayRef.style.left = `${REF_X_PCT}%`;
+            overlayRef.style.top = `${REF_Y_PCT}%`;
+            overlayRef.style.transform = 'translate(-50%, -50%)';
+
+            const overlayBs = document.getElementById('overlayBs');
+            overlayBs.style.left = `${BS_X_PCT}%`;
+            overlayBs.style.top = `${BS_Y_PCT}%`;
+            overlayBs.style.transform = 'translate(-50%, -50%)';
+        }
+        // ==========================================
+
+        const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ8En6_aEMcaVcFTeOLP3FAdpviYg1aF-6IryDOt--P-r_DcimWNmVXnjZrdVjN8TdcdK-4oAwprFU1/pub?gid=55761605&single=true&output=csv";
+        const UPDATE_INTERVAL = 1000 * 60 * 60; 
+        const APPEAR_DELAY = 3000;
+
+        function parseCSVLine(line) {
+            const result = [];
+            let curValue = "";
+            let inQuotes = false;
+            for (let char of line) {
+                if (char === '"') inQuotes = !inQuotes;
+                else if (char === ',' && !inQuotes) {
+                    result.push(curValue);
+                    curValue = "";
+                } else curValue += char;
+            }
+            result.push(curValue);
+            return result;
+        }
+
+        function formatPrice(value, type) {
+            if (!value || value.trim() === "") return "0,00";
+            let cleanValue = value.replace(/[^\d.,]/g, '').trim();
+            if (type === 'ref') return cleanValue.replace(',', '.');
+            return cleanValue.replace('.', ',');
+        }
+
+        async function fetchPrices() {
+            try {
+                const response = await fetch(`${CSV_URL}&cachebuster=${Date.now()}`);
+                if (!response.ok) throw new Error("Error de red");
+                
+                const text = await response.text();
+                const rows = text.split(/\r?\n/).filter(row => row.trim() !== "");
+                
+                if (rows.length < 2) return;
+
+                const columns = parseCSVLine(rows[1]);
+
+                let rawRef = columns[3]?.trim(); 
+                let rawBs = columns[4]?.trim();
+
+                if (rawRef && rawBs) {
+                    const formattedRef = formatPrice(rawRef, 'ref');
+                    const formattedBs = formatPrice(rawBs, 'bs');
+
+                    updateUI(formattedRef, formattedBs);
+                    localStorage.setItem('cached_ref', formattedRef);
+                    localStorage.setItem('cached_bs', formattedBs);
+                }
+            } catch (error) {
+                console.error("Fallo al cargar:", error);
+                loadFromCache();
+            }
+        }
+
+        function loadFromCache() {
+            const ref = localStorage.getItem('cached_ref');
+            const bs = localStorage.getItem('cached_bs');
+            if (ref && bs) updateUI(ref, bs);
+        }
+
+        function updateUI(ref, bs) {
+            document.getElementById('valRef').innerText = ref;
+            document.getElementById('valBs').innerText = bs;
+            
+            setTimeout(() => {
+                document.getElementById('overlayRef').style.opacity = "1";
+                document.getElementById('overlayBs').style.opacity = "1";
+            }, APPEAR_DELAY);
+        }
+
+        window.onload = () => {
+            applyPositions();
+            fetchPrices();
+            setInterval(fetchPrices, UPDATE_INTERVAL);
+        };
+    </script>
+</body>
+</html>
