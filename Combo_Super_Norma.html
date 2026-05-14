@@ -27,7 +27,6 @@
             overflow: hidden;
         }
 
-        /* Imagen de fondo adaptable */
         .background-image {
             width: 100%;
             height: 100%;
@@ -35,7 +34,6 @@
             display: block;
         }
 
-        /* Estilo de los precios con inclinación */
         .price-overlay {
             position: absolute;
             display: flex;
@@ -45,24 +43,20 @@
             transition: opacity 0.1s ease-in-out;
             z-index: 10;
             text-shadow: 2px 2px 8px rgba(0,0,0,0.8);
-            color: #000;
             white-space: nowrap;
             transform-origin: center;
         }
 
         .label {
-            font-size: 1rem;
+            font-size: 1.2rem;
             font-weight: bold;
         }
 
         .price-value {
-            font-size: 2.1rem;
+            font-size: 2.4rem;
             font-weight: bold;
             letter-spacing: -2px;
         }
-
-        #valRef { color: #f08f00; } /* Naranja */
-        #valBs { color: #ffffff; }  /* Blanco */
     </style>
 </head>
 <body>
@@ -71,27 +65,36 @@
         <img src="https://raw.githubusercontent.com/Invenio-DS/Pollos-Norma-Chacaito/main/Combo_Super_Norma.png" alt="Combo Super Norma" class="background-image">
 
         <div class="price-overlay" id="overlayRef">
-            <span class="label">Ref:</span>
+            <span class="label" id="lblRef">Ref:</span>
             <span class="price-value" id="valRef">...</span>
         </div>
 
         <div class="price-overlay" id="overlayBs">
-            <span class="label">Bs.</span>
+            <span class="label" id="lblBs">Bs.</span>
             <span class="price-value" id="valBs">...</span>
         </div>
     </div>
 
     <script>
         // ==========================================
-        // CONFIGURACIÓN DE POSICIÓN Y ROTACIÓN
+        // CONFIGURACIÓN DE POSICIÓN, ROTACIÓN Y COLORES
         // ==========================================
         const REF_X_PCT = 86;   
         const REF_Y_PCT = 39;   
         const BS_X_PCT = 86;    
         const BS_Y_PCT = 49;    
-        const ROTACION = -6;    
+        const ROTACION = -6;
+
+        // --- COLORES ---
+        const COLOR_ETIQUETA_REF = "#f08f00"; // Color de la palabra "Ref:"
+        const COLOR_PRECIO_REF   = "#f08f00"; // Color del número de Ref
+
+        const COLOR_ETIQUETA_BS  = "#ffffff"; // Color de la palabra "Bs."
+        const COLOR_PRECIO_BS    = "#ffffff"; // Color del número de Bs
+        // ---------------
 
         function applyStyles() {
+            // Aplicar posiciones y rotación
             const overlayRef = document.getElementById('overlayRef');
             overlayRef.style.left = `${REF_X_PCT}%`;
             overlayRef.style.top = `${REF_Y_PCT}%`;
@@ -101,11 +104,16 @@
             overlayBs.style.left = `${BS_X_PCT}%`;
             overlayBs.style.top = `${BS_Y_PCT}%`;
             overlayBs.style.transform = `translate(-50%, -50%) rotate(${ROTACION}deg)`;
+
+            // Aplicar Colores Personalizados
+            document.getElementById('lblRef').style.color = COLOR_ETIQUETA_REF;
+            document.getElementById('valRef').style.color = COLOR_PRECIO_REF;
+            document.getElementById('lblBs').style.color  = COLOR_ETIQUETA_BS;
+            document.getElementById('valBs').style.color  = COLOR_PRECIO_BS;
         }
         // ==========================================
 
         const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ8En6_aEMcaVcFTeOLP3FAdpviYg1aF-6IryDOt--P-r_DcimWNmVXnjZrdVjN8TdcdK-4oAwprFU1/pub?gid=0&single=true&output=csv";
-        
         const UPDATE_INTERVAL = 1000 * 60 * 30; 
         const APPEAR_DELAY = 100;
 
@@ -125,36 +133,14 @@
             return result;
         }
 
-        // Función para formatear Bolívares con separador de miles (punto) y decimales (coma)
-        function formatToThousands(value) {
-            if (!value) return "0,00";
-            // Limpiar el valor dejando solo números
-            let numericValue = value.replace(/[^\d]/g, '');
-            if (numericValue === "") return "0,00";
-            
-            // Convertir a número con decimales (asumiendo que los últimos 2 dígitos son decimales si el número es largo)
-            // O simplemente formatear el número entero si viene de la hoja sin decimales explícitos
-            let number = parseFloat(numericValue) / 100;
-            
-            return number.toLocaleString('de-DE', { 
-                minimumFractionDigits: 2, 
-                maximumFractionDigits: 2 
-            });
-        }
-
         function formatPrice(value, type) {
             if (!value || value.trim() === "") return "0.00";
-            
             if (type === 'bs') {
-                // Formato especial para Bolívares en Miles
                 let clean = value.replace(/[^\d.,]/g, '').replace(',', '.');
                 let num = parseFloat(clean);
                 if (isNaN(num)) return "0,00";
-                
-                // Formato alemán (puntos para miles, coma para decimal)
                 return num.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             } else {
-                // Formato para REF (punto para decimal)
                 let cleanValue = value.replace(/[^\d.,]/g, '').trim();
                 return cleanValue.replace(',', '.');
             }
@@ -163,33 +149,20 @@
         async function fetchPrices() {
             try {
                 const response = await fetch(`${CSV_URL}&cachebuster=${Date.now()}`);
-                if (!response.ok) throw new Error("Error de red");
-                
                 const text = await response.text();
                 const rows = text.split(/\r?\n/).filter(row => row.trim() !== "");
-                
-                if (rows.length < 13) {
-                    loadFromCache();
-                    return;
-                }
-
+                if (rows.length < 13) { loadFromCache(); return; }
                 const columns = parseCSVLine(rows[12]); 
-
                 let rawRef = columns[3]?.trim(); 
                 let rawBs = columns[4]?.trim();
-
                 if (rawRef && rawBs) {
-                    const formattedRef = formatPrice(rawRef, 'ref');
-                    const formattedBs = formatPrice(rawBs, 'bs');
-
-                    updateUI(formattedRef, formattedBs);
-                    localStorage.setItem('combo_cached_ref', formattedRef);
-                    localStorage.setItem('combo_cached_bs', formattedBs);
+                    const fRef = formatPrice(rawRef, 'ref');
+                    const fBs = formatPrice(rawBs, 'bs');
+                    updateUI(fRef, fBs);
+                    localStorage.setItem('combo_cached_ref', fRef);
+                    localStorage.setItem('combo_cached_bs', fBs);
                 }
-            } catch (error) {
-                console.error("Fallo al cargar precios:", error);
-                loadFromCache();
-            }
+            } catch (e) { loadFromCache(); }
         }
 
         function loadFromCache() {
@@ -201,7 +174,6 @@
         function updateUI(ref, bs) {
             document.getElementById('valRef').innerText = ref;
             document.getElementById('valBs').innerText = bs;
-            
             setTimeout(() => {
                 document.getElementById('overlayRef').style.opacity = "1";
                 document.getElementById('overlayBs').style.opacity = "1";
