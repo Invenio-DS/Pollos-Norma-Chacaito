@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pollos Norma - Combo Súper Norma</title>
+    <title>Pollos Norma - Combo SÃºper Norma</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@700&display=swap" rel="stylesheet">
     <style>
         * {
@@ -35,7 +35,7 @@
             display: block;
         }
 
-        /* Estilo de los precios con inclinación */
+        /* Estilo de los precios con inclinaciÃ³n */
         .price-overlay {
             position: absolute;
             display: flex;
@@ -51,12 +51,12 @@
         }
 
         .label {
-            font-size: 1.8rem;
+            font-size: 1.2rem;
             font-weight: bold;
         }
 
         .price-value {
-            font-size: 3.3rem;
+            font-size: 2.7rem;
             font-weight: 900;
             letter-spacing: -2px;
         }
@@ -83,7 +83,7 @@
 
     <script>
         // ==========================================
-        // CONFIGURACIÓN DE POSICIÓN Y ROTACIÓN
+        // CONFIGURACIÃ“N DE POSICIÃ“N Y ROTACIÃ“N
         // ==========================================
         const REF_X_PCT = 86;   
         const REF_Y_PCT = 39;   
@@ -125,15 +125,15 @@
             return result;
         }
 
-        // Función para formatear Bolívares con separador de miles (punto) y decimales (coma)
+        // FunciÃ³n para formatear BolÃ­vares con separador de miles (punto) y decimales (coma)
         function formatToThousands(value) {
             if (!value) return "0,00";
-            // Limpiar el valor dejando solo números
+            // Limpiar el valor dejando solo nÃºmeros
             let numericValue = value.replace(/[^\d]/g, '');
             if (numericValue === "") return "0,00";
             
-            // Convertir a número con decimales (asumiendo que los últimos 2 dígitos son decimales si el número es largo)
-            // O simplemente formatear el número entero si viene de la hoja sin decimales explícitos
+            // Convertir a nÃºmero con decimales (asumiendo que los Ãºltimos 2 dÃ­gitos son decimales si el nÃºmero es largo)
+            // O simplemente formatear el nÃºmero entero si viene de la hoja sin decimales explÃ­citos
             let number = parseFloat(numericValue) / 100;
             
             return number.toLocaleString('de-DE', { 
@@ -146,12 +146,12 @@
             if (!value || value.trim() === "") return "0.00";
             
             if (type === 'bs') {
-                // Formato especial para Bolívares en Miles
+                // Formato especial para BolÃ­vares en Miles
                 let clean = value.replace(/[^\d.,]/g, '').replace(',', '.');
                 let num = parseFloat(clean);
                 if (isNaN(num)) return "0,00";
                 
-                // Formato alemán (puntos para miles, coma para decimal)
+                // Formato alemÃ¡n (puntos para miles, coma para decimal)
                 return num.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             } else {
                 // Formato para REF (punto para decimal)
