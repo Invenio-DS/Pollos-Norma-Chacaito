@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pollos Norma - Combo Súper Norma</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            overflow: hidden;
+            font-family: 'Roboto Mono', monospace;
+        }
+
+        .container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Imagen de fondo adaptable */
+        .background-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Estilo de los precios con inclinación */
+        .price-overlay {
+            position: absolute;
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            z-index: 10;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.8);
+            color: #000;
+            white-space: nowrap;
+            transform-origin: center;
+        }
+
+        .label {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        .price-value {
+            font-size: 3.3rem;
+            font-weight: 900;
+            letter-spacing: -2px;
+        }
+
+        #valRef { color: #f08f00; } /* Naranja */
+        #valBs { color: #ffffff; }  /* Negro */
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <img src="https://raw.githubusercontent.com/Invenio-DS/Pollos-Norma-Chacaito/main/Combo_Super_Norma.png" alt="Combo Super Norma" class="background-image">
+
+        <div class="price-overlay" id="overlayRef">
+            <span class="label">Ref:</span>
+            <span class="price-value" id="valRef">...</span>
+        </div>
+
+        <div class="price-overlay" id="overlayBs">
+            <span class="label">Bs.</span>
+            <span class="price-value" id="valBs">...</span>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // CONFIGURACIÓN DE POSICIÓN Y ROTACIÓN
+        // ==========================================
+        const REF_X_PCT = 86;   
+        const REF_Y_PCT = 39;   
+        const BS_X_PCT = 86;    
+        const BS_Y_PCT = 49;    
+        const ROTACION = -6;    
+
+        function applyStyles() {
+            const overlayRef = document.getElementById('overlayRef');
+            overlayRef.style.left = `${REF_X_PCT}%`;
+            overlayRef.style.top = `${REF_Y_PCT}%`;
+            overlayRef.style.transform = `translate(-50%, -50%) rotate(${ROTACION}deg)`;
+
+            const overlayBs = document.getElementById('overlayBs');
+            overlayBs.style.left = `${BS_X_PCT}%`;
+            overlayBs.style.top = `${BS_Y_PCT}%`;
+            overlayBs.style.transform = `translate(-50%, -50%) rotate(${ROTACION}deg)`;
+        }
+        // ==========================================
+
+        const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ8En6_aEMcaVcFTeOLP3FAdpviYg1aF-6IryDOt--P-r_DcimWNmVXnjZrdVjN8TdcdK-4oAwprFU1/pub?gid=0&single=true&output=csv";
+        
+        const UPDATE_INTERVAL = 1000 * 60 * 30; 
+        const APPEAR_DELAY = 100;
+
+        function parseCSVLine(line) {
+            const result = [];
+            let curValue = "";
+            let inQuotes = false;
+            if (!line) return result;
+            for (let char of line) {
+                if (char === '"') inQuotes = !inQuotes;
+                else if (char === ',' && !inQuotes) {
+                    result.push(curValue);
+                    curValue = "";
+                } else curValue += char;
+            }
+            result.push(curValue);
+            return result;
+        }
+
+        // Función para formatear Bolívares con separador de miles (punto) y decimales (coma)
+        function formatToThousands(value) {
+            if (!value) return "0,00";
+            // Limpiar el valor dejando solo números
+            let numericValue = value.replace(/[^\d]/g, '');
+            if (numericValue === "") return "0,00";
+            
+            // Convertir a número con decimales (asumiendo que los últimos 2 dígitos son decimales si el número es largo)
+            // O simplemente formatear el número entero si viene de la hoja sin decimales explícitos
+            let number = parseFloat(numericValue) / 100;
+            
+            return number.toLocaleString('de-DE', { 
+                minimumFractionDigits: 2, 
+                maximumFractionDigits: 2 
+            });
+        }
+
+        function formatPrice(value, type) {
+            if (!value || value.trim() === "") return "0.00";
+            
+            if (type === 'bs') {
+                // Formato especial para Bolívares en Miles
+                let clean = value.replace(/[^\d.,]/g, '').replace(',', '.');
+                let num = parseFloat(clean);
+                if (isNaN(num)) return "0,00";
+                
+                // Formato alemán (puntos para miles, coma para decimal)
+                return num.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            } else {
+                // Formato para REF (punto para decimal)
+                let cleanValue = value.replace(/[^\d.,]/g, '').trim();
+                return cleanValue.replace(',', '.');
+            }
+        }
+
+        async function fetchPrices() {
+            try {
+                const response = await fetch(`${CSV_URL}&cachebuster=${Date.now()}`);
+                if (!response.ok) throw new Error("Error de red");
+                
+                const text = await response.text();
+                const rows = text.split(/\r?\n/).filter(row => row.trim() !== "");
+                
+                if (rows.length < 13) {
+                    loadFromCache();
+                    return;
+                }
+
+                const columns = parseCSVLine(rows[12]); 
+
+                let rawRef = columns[3]?.trim(); 
+                let rawBs = columns[4]?.trim();
+
+                if (rawRef && rawBs) {
+                    const formattedRef = formatPrice(rawRef, 'ref');
+                    const formattedBs = formatPrice(rawBs, 'bs');
+
+                    updateUI(formattedRef, formattedBs);
+                    localStorage.setItem('combo_cached_ref', formattedRef);
+                    localStorage.setItem('combo_cached_bs', formattedBs);
+                }
+            } catch (error) {
+                console.error("Fallo al cargar precios:", error);
+                loadFromCache();
+            }
+        }
+
+        function loadFromCache() {
+            const ref = localStorage.getItem('combo_cached_ref');
+            const bs = localStorage.getItem('combo_cached_bs');
+            if (ref && bs) updateUI(ref, bs);
+        }
+
+        function updateUI(ref, bs) {
+            document.getElementById('valRef').innerText = ref;
+            document.getElementById('valBs').innerText = bs;
+            
+            setTimeout(() => {
+                document.getElementById('overlayRef').style.opacity = "1";
+                document.getElementById('overlayBs').style.opacity = "1";
+            }, APPEAR_DELAY);
+        }
+
+        window.onload = () => {
+            applyStyles();
+            fetchPrices();
+            setInterval(fetchPrices, UPDATE_INTERVAL);
+        };
+    </script>
+</body>
+</html>
