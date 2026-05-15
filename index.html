@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menú Digital - Pollos Norma (720x1280)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    
+    <style id="custom-styles">
+        @import url('https://fonts.googleapis.com/css2?family=Bungee&family=Lilita+One&family=Montserrat:wght@400;700;900&family=Roboto+Mono:wght@700&display=swap');
+        
+        :root {
+            --color-primario: #F08F00;    
+            --color-acento: #dc2626;      
+            --texto-descripcion: #cccccc; 
+
+            --color-precio-ref: #F08F00;
+            --color-precio-bs: #ffffff;
+            
+            --margen-lateral: 35px; 
+
+            --logo-ancho: 100%;         
+            --logo-alto: auto;           
+
+            --tamano-categoria: 1.2rem;
+            --tamano-nombre-plato: 1rem;
+            --tamano-precio: 1rem; 
+            --tamano-desc: 0.5rem;
+
+            --tamano-fuente-footer: 0.6rem; 
+            
+            /* ALTURA DEL PIE DE PÁGINA */
+            --distancia-del-borde: 10px; 
+
+            --fuente-titulos: 'Bungee', cursive;    
+            --fuente-categorias: 'Bungee', cursive; 
+            --fuente-precios: 'Roboto Mono', monospace; 
+            --fuente-cuerpo: 'Roboto Mono', sans-serif; 
+            
+            --tiempo-pagina: 18000ms; 
+        }
+
+        body {
+            background-color: #000;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: var(--fuente-cuerpo);
+            overflow: hidden;
+        }
+
+        #tv-screen {
+            width: 100vw;
+            height: 100vh;
+            max-width: 720px;
+            max-height: 1280px;
+            aspect-ratio: 720 / 1280;
+            background-color: #111;
+            background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://raw.githubusercontent.com/Invenio-DS/Pollos-Norma-Chacaito/main/Fondo.png');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header {
+            flex-shrink: 0;
+            z-index: 100;
+            position: relative;
+            width: 100%;
+            height: 180px; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 var(--margen-lateral);
+        }
+
+        .logo-menu {
+            width: var(--logo-ancho);
+            height: var(--logo-alto);
+            filter: drop-shadow(0px 8px 15px rgba(0,0,0,1));
+            object-fit: contain; 
+        }
+
+        #pages-container {
+            flex-grow: 1;
+            position: relative;
+            padding: 0 var(--margen-lateral) 140px var(--margen-lateral); 
+            box-sizing: border-box;
+            overflow: hidden; 
+        }
+
+        .page {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: inherit;
+            box-sizing: border-box;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.6s ease-in-out;
+        }
+
+        .page.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .category-header {
+            color: #fff;
+            background-color: var(--color-acento);
+            font-family: var(--fuente-categorias);
+            font-size: var(--tamano-categoria);
+            text-transform: uppercase;
+            padding: 3px 9px;
+            margin: 9px 0 5px 0;
+            display: inline-block;
+            transform: rotate(-1deg);
+            border-radius: 4px;
+            box-shadow: 3px 3px 0px rgba(0,0,0,0.5);
+        }
+
+        .menu-item {
+            margin-bottom: 8px;
+            padding-bottom: 4px;
+            border-bottom: 0.5px dashed rgba(255, 255, 255, 0.1);
+            display: grid;
+            grid-template-columns: 1fr 15px 160px; 
+            grid-template-rows: auto auto; 
+            align-items: start;
+        }
+
+        .item-name {
+            grid-column: 1;
+            grid-row: 1;
+            color: #F08F00;
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: var(--tamano-nombre-plato);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+            line-height: 1.1;
+        }
+
+        .item-desc {
+            grid-column: 1;
+            grid-row: 2; 
+            color: var(--texto-descripcion);
+            font-size: var(--tamano-desc);
+            font-style: italic;
+            line-height: 1;
+            margin-top: 1.5px;
+            padding-right: 10px;
+        }
+
+        .price-box {
+            grid-column: 3;
+            display: grid;
+            grid-template-columns: 45px 1fr;
+            font-family: var(--fuente-precios);
+            font-weight: 900;
+            font-size: 1rem;
+            align-items: baseline; 
+        }
+
+        .price-ref-box {
+            grid-row: 1;
+        }
+
+        .price-bs-box {
+            grid-row: 2;
+            margin-top: 1.5px;
+        }
+
+        .price-label {
+            color: var(--color-primario);
+            font-size: 1rem; 
+            font-weight: 700;
+            text-align: left;
+            /* Se eliminó text-transform: uppercase para respetar la capitalización exacta */
+        }
+
+        .price-value {
+            text-align: right;
+            line-height: 1;
+        }
+
+        .value-ref { color: var(--color-precio-ref) !important; }
+        .value-bs { color: var(--color-precio-bs) !important; }
+
+        /* --- PIE DE PÁGINA FLOTANTE --- */
+        #footer-float {
+            position: absolute;
+            bottom: var(--distancia-del-borde);
+            left: 0;
+            width: 100%;
+            padding: 0 var(--margen-lateral);
+            box-sizing: border-box;
+            z-index: 150;
+        }
+
+        .footer-container {
+            display: grid;
+            grid-template-columns: 1fr auto 0.8fr; 
+            align-items: center;
+            background: rgba(0,0,0,0.95);
+            padding: 9px 9px; 
+            border-radius: 30px;
+            border: 2px solid var(--color-primario);
+            backdrop-filter: blur(10px);
+            min-height: 30px; 
+        }
+
+        .footer-column {
+            display: flex;
+            align-items: center;
+            font-size: var(--tamano-fuente-footer);
+            font-weight: 800;
+            font-family: var(--fuente-cuerpo);
+            color: #ffffff;
+        }
+
+        .footer-left { justify-content: flex-start; }
+        .footer-center { 
+            justify-content: center;
+            letter-spacing: 0.2em;
+            text-align: center;
+        }
+        .footer-right { justify-content: flex-end; }
+
+        .tasa-bcv-label {
+            color: var(--color-primario);
+            margin-right: 6px;
+        }
+
+        #tasa-valor {
+            color: #ffffff;
+            font-family: var(--fuente-precios);
+        }
+
+        #page-indicator {
+            color: var(--color-primario);
+            font-family: #ffffff;
+            letter-spacing: 0.2em;
+        }
+    </style>
+</head>
+<body>
+    <div id="tv-screen">
+        <header>
+            <img src="https://raw.githubusercontent.com/Invenio-DS/Pollos-Norma-Chacaito/main/Logo-Solo-720p.png" alt="Logo" class="logo-menu">
+        </header>
+
+        <div id="status-message" class="flex-grow flex flex-col items-center justify-center">
+            <div class="w-12 h-12 border-4 border-t-[#ffffff] border-gray-800 rounded-full animate-spin mb-4"></div>
+            <p class="text-[#F08F00] font-black uppercase tracking-widest text-sm">Sincronizando Menú...</p>
+        </div>
+
+        <main id="pages-container"></main>
+        
+        <div id="footer-float">
+            <div class="footer-container">
+                <!-- IZQUIERDA: TASA BCV -->
+                <div class="footer-column footer-left">
+                    <span class="tasa-bcv-label">TASA BCV:</span>
+                    <span id="tasa-valor">---</span>
+                </div>
+                
+                <!-- CENTRO: TEXTO IVA -->
+                <div class="footer-column footer-center">
+                    LOS PRECIOS INCLUYEN EL I.V.A.
+                </div>
+                
+                <!-- DERECHA: PÁGINA -->
+                <div class="footer-column footer-right">
+                    <span id="page-indicator">1/1</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const BASE_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ8En6_aEMcaVcFTeOLP3FAdpviYg1aF-6IryDOt--P-r_DcimWNmVXnjZrdVjN8TdcdK-4oAwprFU1/pub?output=csv";
+        const MAX_ITEMS_PER_PAGE = 10; 
+        const PAGE_DURATION = 18000; 
+        const SYNC_INTERVAL = 3600000; 
+
+        let currentPageIndex = 0;
+        let totalPages = 0;
+        let pageTimer = null;
+
+        function getVal(row, key) {
+            if (!row) return "";
+            const targetKey = key.toUpperCase().trim();
+            const keys = Object.keys(row);
+            let actualKey = keys.find(k => k.trim().toUpperCase() === targetKey);
+            if (!actualKey && targetKey === "NOMBRE") {
+                actualKey = keys.find(k => k.toUpperCase().includes("NOMBRE") || k.toUpperCase().includes("PLATO"));
+            }
+            return actualKey ? (row[actualKey] ? row[actualKey].trim() : "") : "";
+        }
+
+        // Formato para precios generales (2 decimales)
+        function formatPrice(val) {
+            if (!val || val === "0") return "0,00";
+            let cleanVal = String(val).replace(/[^\d,.-]/g, '').replace(',', '.');
+            let n = parseFloat(cleanVal);
+            return isNaN(n) ? "0,00" : n.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        // Formato específico para la Tasa (4 decimales)
+        function formatPrice4Decimals(val) {
+            if (!val || val === "0") return "0,0000";
+            let cleanVal = String(val).replace(/[^\d,.-]/g, '').replace(',', '.');
+            let n = parseFloat(cleanVal);
+            return isNaN(n) ? "0,0000" : n.toLocaleString('de-DE', { minimumFractionDigits: 4, maximumFractionDigits: 4 });
+        }
+
+        async function fetchMenu() {
+            try {
+                const response = await fetch(`${BASE_URL}&t=${Date.now()}`);
+                const csvText = await response.text();
+                
+                Papa.parse(csvText, {
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: (results) => {
+                        if (results.data?.length > 0) {
+                            const data = results.data;
+                            
+                            // EXTRAER TASA BCV DE LA COLUMNA F (Sexta columna, índice 5)
+                            const keys = Object.keys(data[0]);
+                            const colFKey = keys[5]; 
+                            const bcvVal = data[0][colFKey];
+                            
+                            if (bcvVal) {
+                                document.getElementById('tasa-valor').innerText = formatPrice4Decimals(bcvVal);
+                            }
+
+                            const cleanData = data.filter(r => getVal(r, "NOMBRE") !== "");
+                            renderMenu(cleanData);
+                        }
+                    }
+                });
+            } catch (err) { 
+                console.error("Error cargando datos:", err);
+                setTimeout(fetchMenu, 5000);
+            }
+        }
+
+        function renderMenu(data) {
+            const container = document.getElementById('pages-container');
+            const status = document.getElementById('status-message');
+            container.innerHTML = '';
+            
+            const pages = [];
+            let currentItems = [];
+            data.forEach((row) => {
+                const cat = getVal(row, "CATEGORIA") || "VARIOS";
+                if (currentItems.length >= MAX_ITEMS_PER_PAGE) {
+                    pages.push([...currentItems]);
+                    currentItems = [];
+                }
+                currentItems.push({ ...row, catName: cat });
+            });
+            if (currentItems.length > 0) pages.push(currentItems);
+            totalPages = pages.length;
+
+            pages.forEach((pageData, pIdx) => {
+                const pageDiv = document.createElement('div');
+                pageDiv.className = `page ${pIdx === 0 ? 'active' : ''}`;
+                pageDiv.id = `page-${pIdx}`;
+                let html = "";
+                let currentCatInPage = "";
+
+                pageData.forEach((item) => {
+                    if (item.catName !== currentCatInPage) {
+                        html += `<div class="category-header">${item.catName}</div>`;
+                        currentCatInPage = item.catName;
+                    }
+                    
+                    const nombre = getVal(item, "NOMBRE");
+                    const ref = formatPrice(getVal(item, "REF"));
+                    const bs = formatPrice(getVal(item, "BS"));
+                    const desc = getVal(item, "DESCRIPCION");
+
+                    html += `
+                        <div class="menu-item">
+                            <div class="item-name">${nombre}</div>
+                            <div class="item-desc">${desc}</div>
+                            
+                            <div class="price-box price-ref-box">
+                                <span class="price-label">Ref:</span>
+                                <span class="price-value value-ref">${ref}</span>
+                            </div>
+                            
+                            <div class="price-box price-bs-box">
+                                <span class="price-label">Bs.</span>
+                                <span class="price-value value-bs">${bs}</span>
+                            </div>
+                        </div>`;
+                });
+                pageDiv.innerHTML = html;
+                container.appendChild(pageDiv);
+            });
+
+            status.style.display = 'none';
+            updateIndicator();
+            startRotation();
+        }
+
+        function updateIndicator() {
+            const el = document.getElementById('page-indicator');
+            if (el) el.innerText = `${currentPageIndex + 1}/${totalPages}`;
+        }
+
+        function startRotation() {
+            if (totalPages <= 1) return;
+            if (pageTimer) clearInterval(pageTimer);
+            pageTimer = setInterval(() => {
+                const active = document.querySelector('.page.active');
+                if (active) active.classList.remove('active');
+                
+                currentPageIndex = (currentPageIndex + 1) % totalPages;
+                const next = document.getElementById(`page-${currentPageIndex}`);
+                if (next) next.classList.add('active');
+                updateIndicator();
+            }, PAGE_DURATION);
+        }
+
+        window.addEventListener('DOMContentLoaded', fetchMenu);
+        setInterval(fetchMenu, SYNC_INTERVAL); 
+    </script>
+</body>
+</html>
