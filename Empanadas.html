@@ -38,7 +38,7 @@
         video {
             width: 100%;
             height: 100%;
-            object-fit: cover; /* Asegura que cubra todo el espacio vertical/horizontal */
+            object-fit: cover;
             display: block;
         }
 
@@ -70,6 +70,48 @@
 
         #valRef { color: #f08f00; } /* Naranja */
         #valBs { color: #ffffff; }  /* Blanco */
+
+        /* --- BLOQUE INFERIOR IZQUIERDO (INSTAGRAM Y TASA BCV) --- */
+        .bottom-left-box {
+            position: absolute;
+            bottom: 25px;
+            left: 25px;
+            z-index: 15;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out;
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.9);
+        }
+
+        .instagram-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #ffffff;
+            font-size: 1.1rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .bcv-info {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+        }
+
+        .bcv-label {
+            color: #f08f00;
+            font-size: 1.1rem;
+            letter-spacing: 1.5px;
+        }
+
+        .bcv-value {
+            color: #ffffff;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -79,6 +121,7 @@
             <source src="https://raw.githubusercontent.com/Invenio-DS/Pollos-Norma-Chacaito/main/Empanadas%20720x1280.mp4" type="video/mp4">
         </video>
 
+        <!-- PRECIOS LATERALES -->
         <div class="price-overlay" id="overlayRef">
             <span class="label">Ref:</span>
             <span class="price-value" id="valRef">...</span>
@@ -88,12 +131,22 @@
             <span class="label">Bs.</span>
             <span class="price-value" id="valBs">...</span>
         </div>
+
+        <!-- ESQUINA INFERIOR IZQUIERDA: INSTAGRAM Y TASA BCV -->
+        <div class="bottom-left-box" id="bottomLeftBox">
+            <div class="instagram-info">
+                <span>@pollosnormachacaito</span>
+            </div>
+            <div class="bcv-info">
+                <span class="bcv-label">TASA BCV:</span>
+                <span class="bcv-value" id="valBcv">---</span>
+            </div>
+        </div>
     </div>
 
     <script>
         // ==========================================
         // CONFIGURACIÓN DE POSICIONES (PORCENTAJE %)
-        // Se usa % para que sea más fácil ubicar en pantallas adaptables
         // ==========================================
         const REF_X_PCT = 74; // Centro horizontal
         const REF_Y_PCT = 56; // Un poco arriba del centro
@@ -133,11 +186,38 @@
             return result;
         }
 
-        function formatPrice(value, type) {
-            if (!value || value.trim() === "") return "0,00";
-            let cleanValue = value.replace(/[^\d.,]/g, '').trim();
-            if (type === 'ref') return cleanValue.replace(',', '.');
-            return cleanValue.replace('.', ',');
+        // Función para interpretar correctamente puntos de miles y comas decimales
+        function parseCustomFloat(val) {
+            if (!val) return 0;
+            let str = String(val).trim();
+            
+            if (str.includes('.') && str.includes(',')) {
+                str = str.replace(/\./g, '').replace(',', '.');
+            } else if (str.includes(',')) {
+                str = str.replace(',', '.');
+            } else if (str.includes('.')) {
+                const parts = str.split('.');
+                if (parts[parts.length - 1].length > 2) {
+                    str = str.replace(/\./g, '');
+                }
+            }
+            
+            let n = parseFloat(str.replace(/[^\d.-]/g, ''));
+            return isNaN(n) ? 0 : n;
+        }
+
+        // Formato para los precios principales (2 decimales)
+        function formatPrice(value) {
+            let n = parseCustomFloat(value);
+            if (n === 0) return "0,00";
+            return n.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        // Formato específico para la Tasa BCV (4 decimales)
+        function formatPrice4Decimals(value) {
+            let n = parseCustomFloat(value);
+            if (n === 0) return "0,0000";
+            return n.toLocaleString('de-DE', { minimumFractionDigits: 4, maximumFractionDigits: 4 });
         }
 
         async function fetchPrices() {
@@ -152,16 +232,23 @@
 
                 const columns = parseCSVLine(rows[1]);
 
+                // Posiciones de columnas:
+                // Columna D = Índice 3 (REF)
+                // Columna E = Índice 4 (BS)
+                // Columna F = Índice 5 (TASA BCV)
                 let rawRef = columns[3]?.trim(); 
                 let rawBs = columns[4]?.trim();
+                let rawBcv = columns[5]?.trim();
 
                 if (rawRef && rawBs) {
-                    const formattedRef = formatPrice(rawRef, 'ref');
-                    const formattedBs = formatPrice(rawBs, 'bs');
+                    const formattedRef = formatPrice(rawRef);
+                    const formattedBs = formatPrice(rawBs);
+                    const formattedBcv = rawBcv ? formatPrice4Decimals(rawBcv) : "---";
 
-                    updateUI(formattedRef, formattedBs);
+                    updateUI(formattedRef, formattedBs, formattedBcv);
                     localStorage.setItem('cached_ref', formattedRef);
                     localStorage.setItem('cached_bs', formattedBs);
+                    localStorage.setItem('cached_bcv', formattedBcv);
                 }
             } catch (error) {
                 console.error("Fallo al cargar:", error);
@@ -172,16 +259,19 @@
         function loadFromCache() {
             const ref = localStorage.getItem('cached_ref');
             const bs = localStorage.getItem('cached_bs');
-            if (ref && bs) updateUI(ref, bs);
+            const bcv = localStorage.getItem('cached_bcv');
+            if (ref && bs) updateUI(ref, bs, bcv || "---");
         }
 
-        function updateUI(ref, bs) {
+        function updateUI(ref, bs, bcv) {
             document.getElementById('valRef').innerText = ref;
             document.getElementById('valBs').innerText = bs;
+            document.getElementById('valBcv').innerText = bcv;
             
             setTimeout(() => {
                 document.getElementById('overlayRef').style.opacity = "1";
                 document.getElementById('overlayBs').style.opacity = "1";
+                document.getElementById('bottomLeftBox').style.opacity = "1";
             }, APPEAR_DELAY);
         }
 
