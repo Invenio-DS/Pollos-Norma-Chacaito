@@ -184,7 +184,6 @@
             font-size: 1rem; 
             font-weight: 700;
             text-align: left;
-            /* Se eliminó text-transform: uppercase para respetar la capitalización exacta */
         }
 
         .price-value {
@@ -315,20 +314,43 @@
             return targetKey && row[targetKey] ? row[targetKey].trim() : "";
         }
 
+        // Función para limpiar de manera inteligente la cadena del precio
+        function parseCustomFloat(val) {
+            if (!val) return 0;
+            let str = String(val).trim();
+            
+            // Si el texto tiene tanto puntos como comas (ej. "1.250,50")
+            if (str.includes('.') && str.includes(',')) {
+                str = str.replace(/\./g, '').replace(',', '.');
+            } 
+            // Si solo tiene coma (ej. "1250,50")
+            else if (str.includes(',')) {
+                str = str.replace(',', '.');
+            } 
+            // Si tiene solo un punto y más de 2 cifras tras el punto (ej. "1.250" -> punto de miles)
+            else if (str.includes('.')) {
+                const parts = str.split('.');
+                if (parts[parts.length - 1].length > 2) {
+                    str = str.replace(/\./g, '');
+                }
+            }
+            
+            let n = parseFloat(str.replace(/[^\d.-]/g, ''));
+            return isNaN(n) ? 0 : n;
+        }
+
         // Formato para precios generales (2 decimales)
         function formatPrice(val) {
-            if (!val || val === "0") return "0,00";
-            let cleanVal = String(val).replace(/[^\d,.-]/g, '').replace(',', '.');
-            let n = parseFloat(cleanVal);
-            return isNaN(n) ? "0,00" : n.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            let n = parseCustomFloat(val);
+            if (n === 0) return "0,00";
+            return n.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
 
         // Formato específico para la Tasa (4 decimales)
         function formatPrice4Decimals(val) {
-            if (!val || val === "0") return "0,0000";
-            let cleanVal = String(val).replace(/[^\d,.-]/g, '').replace(',', '.');
-            let n = parseFloat(cleanVal);
-            return isNaN(n) ? "0,0000" : n.toLocaleString('de-DE', { minimumFractionDigits: 4, maximumFractionDigits: 4 });
+            let n = parseCustomFloat(val);
+            if (n === 0) return "0,0000";
+            return n.toLocaleString('de-DE', { minimumFractionDigits: 4, maximumFractionDigits: 4 });
         }
 
         async function fetchMenu() {
