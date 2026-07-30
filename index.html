@@ -307,6 +307,14 @@
             return actualKey ? (row[actualKey] ? row[actualKey].trim() : "") : "";
         }
 
+        // Obtener valor según el índice posicional de la columna (0=A, 1=B, 2=C, 3=D, 4=E, 5=F...)
+        function getValByIndex(row, colIndex) {
+            if (!row) return "";
+            const keys = Object.keys(row);
+            const targetKey = keys[colIndex];
+            return targetKey && row[targetKey] ? row[targetKey].trim() : "";
+        }
+
         // Formato para precios generales (2 decimales)
         function formatPrice(val) {
             if (!val || val === "0") return "0,00";
@@ -387,8 +395,8 @@
                     }
                     
                     const nombre = getVal(item, "NOMBRE");
-                    const ref = formatPrice(getVal(item, "REF"));
-                    const bs = formatPrice(getVal(item, "BS"));
+                    const ref = formatPrice(getValByIndex(item, 3)); // Columna D (Índice 3)
+                    const bs = formatPrice(getValByIndex(item, 4));  // Columna E (Índice 4)
                     const desc = getVal(item, "DESCRIPCION");
 
                     html += `
